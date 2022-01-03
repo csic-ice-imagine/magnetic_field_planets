@@ -7,15 +7,13 @@ from matplotlib import cm
 import csv
 
 # Spherical grid numbers
-Nphi = 400
-Ntheta = 200
+Ntheta = 100
+Nphi = Ntheta*2
 Nr = 3
 a = 1  # Should be 6371.2/72492 (Earth/Jupiter), but renormalize to 1, since r/a is what matters
 rc = 1  # Radius considered in the map plot (CMB = 0.455/0.85 for earth/jupiter).
 dr = 0.0001
-# Remember to change the name of the plots to include the distance!!!
 const = 1.  # To fo from nanotesla to gauss
-
 planet = "Jupiter"  # Can be Earth, Jupiter
 year = 2020  # Can be 1900, 1905, 1910, ..., to 2020. Only in the case of the Earth
 
@@ -34,8 +32,8 @@ Plot = 0
 # if 8 the curvaturephi
 
 # Definition of the spherical grid
-phi = np.linspace(0, 2 * np.pi, num=Nphi)
-theta = np.linspace(.1 * np.pi / Ntheta, np.pi * (1 - .1 / Ntheta), num=Ntheta)
+phi = np.linspace(1 * np.pi / Nphi, 2 * np.pi *(1 - 0.5/Nphi), num=Nphi)
+theta = np.linspace(.5 * np.pi / Ntheta, np.pi * (1 - .5 / Ntheta), num=Ntheta)
 radius = np.linspace(rc * (1. - dr), rc * (1. + dr), num=Nr)
 potential = np.zeros([Nr, Ntheta, Nphi])
 # Initialize all components of the magnetic field (shperical and modulus)
@@ -73,14 +71,15 @@ elif planet == "Jupiter":
 else:
     NPOL = 0
 
-NPOL=10
-g[:,:] = 0.
-h[:,:] = 0.
-g[1,1] = 1.
-h[1,1] = 0.
+#NPOL=10
+#g[:,:] = 0.
+#h[:,:] = 0.
+#g[1,1] = 1.
+#h[1,1] = 0.
 
 # This part defines all K's and S's used in the recursive formulas for
-# the Schmidt quasi-normalized associated Legendre polynomials
+# the Schmidt quasi-normalized associated Legendre polynomials,
+# which are orthogonal, but not normal.
 K = np.zeros([NPOL, NPOL])
 S = np.zeros([NPOL, NPOL])
 S[0, 0] = 1
@@ -91,13 +90,13 @@ for n in range(1, NPOL):
         K[n, m] = ((n - 1) ** 2 - m ** 2) / (2 * n - 1) / (2 * n - 3)
         if n == 1:
             K[n, m] = 0
-        if m == 1:
-            delta = 1
-        else:
-            delta = 0
         if m == 0:
             S[n, 0] = (2 * n - 1) * S[n - 1, 0] / n
         else:
+            if m == 1:
+                delta = 1
+            else:
+                delta = 0
             S[n, m] = S[n, m - 1] * np.sqrt((n - m + 1) * (delta + 1) / (n + m))
 
 # This part defines the Gaussian-normalized and
@@ -106,35 +105,29 @@ Pgauss = np.zeros([NPOL, NPOL, Ntheta])
 derivPgauss = np.zeros([NPOL, NPOL, Ntheta])
 P = np.zeros([NPOL, NPOL, Ntheta])
 derivP = np.zeros([NPOL, NPOL, Ntheta])
-for ntheta in range(0, Ntheta):
-    Pgauss[0, 0, ntheta] = 1
-    derivPgauss[0, 0, ntheta] = 0
+
+# DV: I have simplified here a lot (one could put also K and S here somehow)
+# (not sure if it would be faster to have theta inside, instead of outside)
 
 for ntheta in range(0, Ntheta):
+    Pgauss[0, 0, ntheta] = 1
+    Pgauss[1, 0, ntheta] = np.cos(theta[ntheta])
+    derivPgauss[0, 0, ntheta] = 0
+    derivPgauss[1, 0, ntheta] = - np.sin(theta[ntheta])
     for n in range(1, NPOL):
-        for m in range(0, n + 1):
-            for i in range(1, n + 1):
-                for j in range(0, i + 1):
-                    if i == j:
-                        # Associated Legendre polynomials with Gauss normalization and their derivatives
-                        Pgauss[i, i, ntheta] = np.sin(theta[ntheta]) * Pgauss[i - 1, i - 1, ntheta]
-                        derivPgauss[i, i, ntheta] = np.sin(theta[ntheta]) * derivPgauss[i - 1, i - 1, ntheta] + np.cos(
-                            theta[ntheta]) * Pgauss[i - 1, i - 1, ntheta]
-                    elif i == 1:
-                        Pgauss[1, 0, ntheta] = np.cos(theta[ntheta])
-                        derivPgauss[1, 0, ntheta] = - np.sin(theta[ntheta])
-                    else:
-                        Pgauss[i, j, ntheta] = np.cos(theta[ntheta]) * Pgauss[i - 1, j, ntheta] - K[i, j] * Pgauss[
-                            i - 2, j, ntheta]
-                        derivPgauss[i, j, ntheta] = np.cos(theta[ntheta]) * derivPgauss[i - 1, j, ntheta] - np.sin(
-                            theta[ntheta]) * Pgauss[i - 1, j, ntheta] - K[i, j] * derivPgauss[i - 2, j, ntheta]
-            P[n, m, ntheta] = S[n, m] * Pgauss[n, m, ntheta]
-            derivP[n, m, ntheta] = S[n, m] * derivPgauss[n, m, ntheta]
+        Pgauss[n, n, ntheta] = np.sin(theta[ntheta]) * Pgauss[n - 1, n - 1, ntheta]
+        derivPgauss[n, n, ntheta] = np.sin(theta[ntheta]) * derivPgauss[n - 1, n - 1, ntheta] + np.cos(
+            theta[ntheta]) * Pgauss[n - 1, n - 1, ntheta]
+        for m in range(0, n):
+            Pgauss[n, m, ntheta] = np.cos(theta[ntheta]) * Pgauss[n - 1, m, ntheta] - K[n, m] * Pgauss[
+                n - 2, m, ntheta]
+            derivPgauss[n, m, ntheta] = np.cos(theta[ntheta]) * derivPgauss[n - 1, m, ntheta] - np.sin(
+                theta[ntheta]) * Pgauss[n - 1, m, ntheta] - K[n, m] * derivPgauss[n - 2, m, ntheta]
+    P[:, :, ntheta] = S[:, :] * Pgauss[:, :, ntheta]
+    derivP[:, :, ntheta] = S[:, :] * derivPgauss[:, :, ntheta]
 
 
 # This function calculates the potential, fieldr, fieldtheta and fieldphi for a given r, theta and phi
-
-
 def function(radius0, ntheta, phi0):
     poten, fr, ftheta, fphi = 0, 0, 0, 0
     for n in range(1, NPOL):
@@ -176,16 +169,34 @@ derivphifieldr, derivphidirectionr = np.zeros([Ntheta, Nphi]), np.zeros([Ntheta,
 derivphifieldtheta, derivphidirectiontheta = np.zeros([Ntheta, Nphi]), np.zeros([Ntheta, Nphi])
 derivphifieldphi, derivphidirectionphi = np.zeros([Ntheta, Nphi]), np.zeros([Ntheta, Nphi])
 
-divr = np.zeros([Ntheta,Nphi])
+divd2 = np.zeros([Ntheta,Nphi])
 divergence = np.zeros([Ntheta, Nphi])
+volume = np.zeros([Ntheta, Nphi])
 
 # Calculates all the field and direction derivatives.
 h_r = radius[2] - radius[1]
 h_theta = rc * (theta[2] - theta[1])
 for j in range(1, Ntheta - 1):
     h_phi = rc * np.sin(theta[j]) * (phi[2] - phi[1])
-    for k in range(0, Nphi):
+
+    derivphifieldr[j, 0] = .5 * (fieldr[i, j, 1] - fieldr[i, j, Nphi - 1]) / h_phi
+    derivphidirectionr[j, 0] = .5 * (directionr[i, j, 1] - directionr[i, j, Nphi - 1]) / h_phi
+    derivphifieldtheta[j, 0] = .5 * (fieldtheta[i, j, 1] - fieldtheta[i, j, Nphi - 1]) / h_phi
+    derivphidirectiontheta[j, 0] = .5 * (directiontheta[i, j, 1] - directiontheta[i, j, Nphi - 1]) / h_phi
+    derivphifieldphi[j, 0] = .5 * (fieldphi[i, j, 1] - fieldphi[i, j, Nphi - 1]) / h_phi
+    derivphidirectionphi[j, 0] = .5 * (directionphi[i, j, 1] - directionphi[i, j, Nphi - 1]) / h_phi
+
+    derivphifieldr[j, Nphi-1] = .5 * (fieldr[i, j, 0] - fieldr[i, j, Nphi - 2]) / h_phi
+    derivphidirectionr[j, Nphi-1] = .5 * (directionr[i, j, 0] - directionr[i, j, Nphi - 2]) / h_phi
+    derivphifieldtheta[j, Nphi-1] = .5 * (fieldtheta[i, j, 0] - fieldtheta[i, j, Nphi - 2]) / h_phi
+    derivphidirectiontheta[j, Nphi-1] = .5 * (directiontheta[i, j, 0] - directiontheta[i, j, Nphi - 2]) / h_phi
+    derivphifieldphi[j, Nphi-1] = .5 * (fieldphi[i, j, 0] - fieldphi[i, j, Nphi - 2]) / h_phi
+    derivphidirectionphi[j, Nphi-1] = .5 * (directionphi[i, j, 0] - directionphi[i, j, Nphi - 2]) / h_phi
+
+    for k in range(1, Nphi-1):
         i = 1
+        volume[j,k] = h_r*h_phi*h_theta
+        divd2[j,k] = h_r**(-2) + h_theta**(-2) + h_phi**(-2)
 
         derivrfieldr[j, k] = .5 * (fieldr[i + 1, j, k] - fieldr[i - 1, j, k]) / h_r
         derivrdirectionr[j, k] = .5 * (directionr[i + 1, j, k] - directionr[i - 1, j, k]) / h_r
@@ -201,31 +212,13 @@ for j in range(1, Ntheta - 1):
         derivthetafieldphi[j, k] = .5 * (fieldphi[i, j + 1, k] - fieldphi[i, j - 1, k]) / h_theta
         derivthetadirectionphi[j, k] = .5 * (directionphi[i, j + 1, k] - directionphi[i, j - 1, k]) / h_theta
 
-        if k == 0 or k == (Nphi - 1):
-            derivphifieldr[j, 0] = .5 * (fieldr[i, j, 1] - fieldr[i, j, Nphi - 2]) / h_phi
-            derivphidirectionr[j, 0] = .5 * (directionr[i, j, 1] - directionr[i, j, Nphi - 2]) / h_phi
-            derivphifieldtheta[j, 0] = .5 * (fieldtheta[i, j, 1] - fieldtheta[i, j, Nphi - 2]) / h_phi
-            derivphidirectiontheta[j, 0] = .5 * (directiontheta[i, j, 1] - directiontheta[i, j, Nphi - 2]) / h_phi
-            derivphifieldphi[j, 0] = .5 * (fieldphi[i, j, 1] - fieldphi[i, j, Nphi - 2]) / h_phi
-            derivphidirectionphi[j, 0] = .5 * (directionphi[i, j, 1] - directionphi[i, j, Nphi - 2]) / h_phi
-
-            derivphifieldr[j, Nphi - 1] = derivphifieldr[j, 0]
-            derivphidirectionr[j, Nphi - 1] = derivphidirectionr[j, 0]
-            derivphifieldtheta[j, Nphi - 1] = derivphifieldtheta[j, 0]
-            derivphidirectiontheta[j, Nphi - 1] = derivphidirectiontheta[j, 0]
-            derivphifieldphi[j, Nphi - 1] = derivphifieldphi[j, 0]
-            derivphidirectionphi[j, Nphi - 1] = derivphidirectionphi[j, 0]
-
-        else:
-            derivphifieldr[j, k] = .5 * (fieldr[i, j, k + 1] - fieldr[i, j, k - 1]) / h_phi
-            derivphidirectionr[j, k] = .5 * (directionr[i, j, k + 1] - directionr[i, j, k - 1]) / h_phi
-            derivphifieldtheta[j, k] = .5 * (fieldtheta[i, j, k + 1] - fieldtheta[i, j, k - 1]) / h_phi
-            derivphidirectiontheta[j, k] = .5 * (directiontheta[i, j, k + 1] - directiontheta[i, j, k - 1]) / h_phi
-            derivphifieldphi[j, k] = .5 * (fieldphi[i, j, k + 1] - fieldphi[i, j, k - 1]) / h_phi
-            derivphidirectionphi[j, k] = .5 * (directionphi[i, j, k + 1] - directionphi[i, j, k - 1]) / h_phi
-
+        derivphifieldr[j, k] = .5 * (fieldr[i, j, k + 1] - fieldr[i, j, k - 1]) / h_phi
+        derivphidirectionr[j, k] = .5 * (directionr[i, j, k + 1] - directionr[i, j, k - 1]) / h_phi
+        derivphifieldtheta[j, k] = .5 * (fieldtheta[i, j, k + 1] - fieldtheta[i, j, k - 1]) / h_phi
+        derivphidirectiontheta[j, k] = .5 * (directiontheta[i, j, k + 1] - directiontheta[i, j, k - 1]) / h_phi
+        derivphifieldphi[j, k] = .5 * (fieldphi[i, j, k + 1] - fieldphi[i, j, k - 1]) / h_phi
+        derivphidirectionphi[j, k] = .5 * (directionphi[i, j, k + 1] - directionphi[i, j, k - 1]) / h_phi
         
-
         divergence[j, k] = 0.5/rc**2 * ( (rc + dr)**2*fieldr[i+1,j,1] - (rc - dr)**2*fieldr[i-1,j,1] ) / h_r + \
                        0.5/(rc*np.sin(theta[j])) * ( fieldtheta[i,j+1,k]*np.sin(theta[j+1]) - fieldtheta[i,j-1,k]*np.sin(theta[j-1]) )/ h_theta + \
                        derivphifieldphi[j, k] / rc / np.sin(theta[j])
@@ -270,6 +263,11 @@ for j in range(1, Ntheta - 1):
 
 curlmod = np.sqrt(curlr ** 2 + curltheta ** 2 + curlphi ** 2)
 curvaturemod = np.sqrt(curvaturer ** 2 + curvaturetheta ** 2 + curvaturephi ** 2)
+
+field_L2 = np.sum(volume*fieldmod**2*divd2)/np.sum(volume)
+div_L2 = np.sum(volume*divergence**2)/np.sum(volume)
+curl_L2 = np.sum(volume*curlmod**2)/np.sum(volume)
+print("B/dr, Div and Curl L2:",field_L2,div_L2,curl_L2,np.sum(volume))
 
 # Plot parameters
 plt.rcParams['figure.figsize'] = (10, 6)
@@ -326,8 +324,6 @@ if printall:
         plt.yticks([-90, -60, -30, 0, 30, 60, 90])
         plt.xlabel("Longitude")
         plt.ylabel("Latitude")
-
-        print(names[number])
 
         printvalues = magnitudes[number]
         printvalues[np.where(printvalues > maxf[number])] = maxf[number]
