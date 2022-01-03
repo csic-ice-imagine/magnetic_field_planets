@@ -1,4 +1,11 @@
 # Version by Daniele with more plots at the same time, and with generic fields
+# The data from Connerney et al. 2018 present the weights that need to be multiplied by the Schmidt semi-normalization
+# Note that in the PDF attached and in Connerney et al. 2018 they call it Associated Legendre polynomials
+# but they correspond to the Real spherical harmonics of https://en.wikipedia.org/wiki/Spherical_harmonics
+# Usually, the Associated Legendre polynomials are not normalized and are well defined except for a sign
+# The spherical harmonics can be normalized ("Pgauss" here), so that the integral among identical harmonics is 1
+# In this case, we use the normalization sqrt((l-m)!/(l+m)!),
+# and the integral for two identical harmonics is 4pi/(2l+1)
 
 import numpy as np
 import matplotlib as mpl
@@ -11,9 +18,9 @@ Ntheta = 100
 Nphi = Ntheta*2
 Nr = 3
 a = 1  # Should be 6371.2/72492 (Earth/Jupiter), but renormalize to 1, since r/a is what matters
-rc = 1  # Radius considered in the map plot (CMB = 0.455/0.85 for earth/jupiter).
-dr = 0.0001
-const = 1.  # To fo from nanotesla to gauss
+rc = 0.85  # Radius considered in the map plot (CMB = 0.455/0.85 for earth/jupiter).
+dr = 0.001
+const = 1e5  # To fo from nanotesla to gauss
 planet = "Jupiter"  # Can be Earth, Jupiter
 year = 2020  # Can be 1900, 1905, 1910, ..., to 2020. Only in the case of the Earth
 
@@ -71,15 +78,13 @@ elif planet == "Jupiter":
 else:
     NPOL = 0
 
-#NPOL=10
+#NPOL=2
 #g[:,:] = 0.
 #h[:,:] = 0.
-#g[1,1] = 1.
-#h[1,1] = 0.
+g[:,1:] = 0.
 
 # This part defines all K's and S's used in the recursive formulas for
-# the Schmidt quasi-normalized associated Legendre polynomials,
-# which are orthogonal, but not normal.
+# the Schmidt quasi-normalized associated Legendre polynomials.
 K = np.zeros([NPOL, NPOL])
 S = np.zeros([NPOL, NPOL])
 S[0, 0] = 1
@@ -87,9 +92,8 @@ delta = 0
 
 for n in range(1, NPOL):
     for m in range(0, n + 1):
-        K[n, m] = ((n - 1) ** 2 - m ** 2) / (2 * n - 1) / (2 * n - 3)
-        if n == 1:
-            K[n, m] = 0
+        if n > 1:
+            K[n, m] = ((n - 1) ** 2 - m ** 2) / (2 * n - 1) / (2 * n - 3)
         if m == 0:
             S[n, 0] = (2 * n - 1) * S[n - 1, 0] / n
         else:
@@ -118,11 +122,12 @@ for ntheta in range(0, Ntheta):
         Pgauss[n, n, ntheta] = np.sin(theta[ntheta]) * Pgauss[n - 1, n - 1, ntheta]
         derivPgauss[n, n, ntheta] = np.sin(theta[ntheta]) * derivPgauss[n - 1, n - 1, ntheta] + np.cos(
             theta[ntheta]) * Pgauss[n - 1, n - 1, ntheta]
-        for m in range(0, n):
-            Pgauss[n, m, ntheta] = np.cos(theta[ntheta]) * Pgauss[n - 1, m, ntheta] - K[n, m] * Pgauss[
-                n - 2, m, ntheta]
-            derivPgauss[n, m, ntheta] = np.cos(theta[ntheta]) * derivPgauss[n - 1, m, ntheta] - np.sin(
-                theta[ntheta]) * Pgauss[n - 1, m, ntheta] - K[n, m] * derivPgauss[n - 2, m, ntheta]
+        if n > 1:
+            for m in range(0, n):
+                Pgauss[n, m, ntheta] = np.cos(theta[ntheta]) * Pgauss[n - 1, m, ntheta] - K[n, m] * Pgauss[
+                   n - 2, m, ntheta]
+                derivPgauss[n, m, ntheta] = np.cos(theta[ntheta]) * derivPgauss[n - 1, m, ntheta] - np.sin(
+                   theta[ntheta]) * Pgauss[n - 1, m, ntheta] - K[n, m] * derivPgauss[n - 2, m, ntheta]
     P[:, :, ntheta] = S[:, :] * Pgauss[:, :, ntheta]
     derivP[:, :, ntheta] = S[:, :] * derivPgauss[:, :, ntheta]
 
@@ -196,7 +201,7 @@ for j in range(1, Ntheta - 1):
     for k in range(1, Nphi-1):
         i = 1
         volume[j,k] = h_r*h_phi*h_theta
-        divd2[j,k] = h_r**(-2) + h_theta**(-2) + h_phi**(-2)
+        divd2[j,k] = h_r**(2) + h_theta**(2) + h_phi**(2)
 
         derivrfieldr[j, k] = .5 * (fieldr[i + 1, j, k] - fieldr[i - 1, j, k]) / h_r
         derivrdirectionr[j, k] = .5 * (directionr[i + 1, j, k] - directionr[i - 1, j, k]) / h_r
@@ -235,9 +240,9 @@ curvaturemod = np.zeros([Ntheta, Nphi])
 for j in range(1, Ntheta - 1):
     i = 1
 
-#    divergence[j, :] = 2. * fieldr[i, j, :] / rc + derivrfieldr[j, :] + \
-#                       fieldtheta[i, j, :] * np.cos(theta[j]) / rc / np.sin(theta[j]) + \
-#                       derivthetafieldtheta[j, :] / rc + derivphifieldphi[j, :] / rc / np.sin(theta[j])
+    divergence[j, :] = 2. * fieldr[i, j, :] / rc + derivrfieldr[j, :] + \
+                       fieldtheta[i, j, :] * np.cos(theta[j]) / rc / np.sin(theta[j]) + \
+                       derivthetafieldtheta[j, :] / rc + derivphifieldphi[j, :] / rc / np.sin(theta[j])
 
     curlr[j, :] = fieldphi[i, j, :] / rc / np.tan(theta[j]) + \
                   derivthetafieldphi[j, :] / rc - derivphifieldtheta[j, :] / rc / np.sin(theta[j])
@@ -264,10 +269,10 @@ for j in range(1, Ntheta - 1):
 curlmod = np.sqrt(curlr ** 2 + curltheta ** 2 + curlphi ** 2)
 curvaturemod = np.sqrt(curvaturer ** 2 + curvaturetheta ** 2 + curvaturephi ** 2)
 
-field_L2 = np.sum(volume*fieldmod**2*divd2)/np.sum(volume)
-div_L2 = np.sum(volume*divergence**2)/np.sum(volume)
-curl_L2 = np.sum(volume*curlmod**2)/np.sum(volume)
-print("B/dr, Div and Curl L2:",field_L2,div_L2,curl_L2,np.sum(volume))
+field_L2 = np.sum(volume*fieldmod**2)
+div_L2 = np.sum(volume*divergence**2*divd2)
+curl_L2 = np.sum(volume*curlmod**2*divd2)
+print("B**2, (Div*h)**2 and (Curl*h)**2, integrated:",field_L2,div_L2,curl_L2,np.sum(volume),"dr,Nth,Np:",dr,Ntheta,Nphi)
 
 # Plot parameters
 plt.rcParams['figure.figsize'] = (10, 6)
