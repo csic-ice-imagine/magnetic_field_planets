@@ -14,7 +14,7 @@ from matplotlib import cm
 import csv
 
 # Spherical grid numbers
-Ntheta = 100
+Ntheta = 200
 Nphi = Ntheta*2
 Nr = 3
 a = 1  # Should be 6371.2/72492 (Earth/Jupiter), but renormalize to 1, since r/a is what matters
@@ -81,7 +81,7 @@ else:
 #NPOL=2
 #g[:,:] = 0.
 #h[:,:] = 0.
-g[:,1:] = 0.
+#g[:,1:] = 0.
 
 # This part defines all K's and S's used in the recursive formulas for
 # the Schmidt quasi-normalized associated Legendre polynomials.
@@ -317,7 +317,7 @@ if printall:
 
     names = [r'$\nabla \cdot B h$ (Gauss)', r'$|\nabla x B|h$ (Gauss)', r'$(\nabla x B)_r h$ (Gauss)', r'$(\nabla x B)_\theta h$ (Gauss)', r'$(\nabla x B)_\phi h$ (Gauss)', r'$| \kappa |$', 'B', 'Br', 'Btheta', 'Bphi']
     files = [planet+'_div.png',planet+'_curl_mod.png',planet+'_curlr.png',planet+'_curlth.png',planet+'_curlphi.png',planet+'_k_mod.png',planet+'_b_mod.png',planet+'_br.png',planet+'_btheta.png',planet+'_bphi.png']
-    magnitudes = [divergence*h_theta, curlmod*h_theta, curlr*h_theta, curltheta*h_theta, curlphi*h_theta, curvaturemod, fieldmod[1,:,:], fieldr[1,:,:], fieldtheta[1,:,:], fieldphi[1,:,:]]
+    magnitudes = [divergence*np.sqrt(divd2), curlmod*np.sqrt(divd2), curlr*np.sqrt(divd2), curltheta*np.sqrt(divd2), curlphi*np.sqrt(divd2), curvaturemod, fieldmod[1,:,:], fieldr[1,:,:], fieldtheta[1,:,:], fieldphi[1,:,:]]
 
     maxf = [ 100.,10., 1., 1., 1.,100.,100., 100., 100., 100.]
     minf = [-100.,0.,-1.,-1.,-1.,  0.,  0.,-100.,-100.,-100.]
