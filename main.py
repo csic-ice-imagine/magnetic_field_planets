@@ -5,6 +5,7 @@ import schmidt
 import saveoutput
 import saveplots
 import lowes_spec
+import magnitudes
 
 # Number of points in the latitudinal (North-South) direction, which automatically sets the longitudinal (East-West) direction. 
 Ntheta = 50
@@ -12,6 +13,7 @@ Nphi = 2*Ntheta
 # Number of shells to be calculated
 Nr = 1 
 
+a = 1  # Should be 6371.2/72492 (Earth/Jupiter), but renormalize to 1, since r/a is what matters
 rc = 1.00  # Radius considered in the map plot (CMB = 0.455/0.85 for Earth/Jupiter), and name of the given files
 rc_file = str(rc)
 rc_file = rc_file.replace(".","_") # String used for naming the output files
@@ -114,7 +116,7 @@ if planeproj: saveplots.planeproj(planet, rc, rc_file, phi, theta, Nr, Ntheta, N
 # Saves Mollweide projection of the magnitudes
 if mollweideproj: saveplots.mollweideproj(planet, rc, rc_file, phi, theta, Nr, Ntheta, Nphi, potential, fieldr, fieldtheta, fieldphi, fieldmod)
 
-#if magnitudes:
+#if magnitudes: magnitudes.getMagnitudes(Nr, Ntheta, Nphi, radius, rc, a, dr, phi, theta, potential, fieldr, fieldtheta, fieldphi, fieldmod, planet, year)
 
 # Obtain the Lowes spectrum for a the given plotted radius and plot it
 if lowes:
