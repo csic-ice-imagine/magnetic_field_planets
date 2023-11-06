@@ -2,6 +2,7 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 from matplotlib import cm
+import cartopy.crs as ccrs
 
 cmap1 = cm.get_cmap('RdBu_r', 255)
 cmap2 = cm.get_cmap('inferno', 255)
@@ -17,10 +18,14 @@ def planeproj(planet, rc, rc_file, phi, theta, Nr, Ntheta, Nphi, potential, fiel
     printvalues = np.zeros([Nr, Ntheta, Nphi])
     for number in range(0, 5):
         plt.clf()
-        plt.xticks([0, 60, 120, 180, 240, 300, 360])
-        plt.yticks([-90, -60, -30, 0, 30, 60, 90])
-        plt.xlabel("Longitude")
-        plt.ylabel("Latitude")
+        ax = plt.axes(projection=ccrs.PlateCarree())
+        if planet=="Earth": ax.coastlines()
+        #ax.invert_yaxis()
+        #ax.invert_xaxis()
+        ax.set_xticks([-180,-120,-60,0,60,120,180])
+        ax.set_yticks([-90,-60,-30,0,30,60,90])
+        ax.set_ylabel("Latitude")
+        ax.set_xlabel("Longitude")
         printvalues = magntidues[number]
         limit = max(np.absolute(np.max(printvalues)), np.absolute(np.min(printvalues)))
         if number==4: 
@@ -29,8 +34,7 @@ def planeproj(planet, rc, rc_file, phi, theta, Nr, Ntheta, Nphi, potential, fiel
         else:
             realmap = cmap1
             vmin, vmax = -limit, limit
-        plt.contourf(Phi, Theta, printvalues[0, :, :], cmap=realmap, vmin=vmin, vmax=vmax, levels=30)
-        plt.gca().invert_xaxis()
+        plt.contourf(Phi, Theta, np.flip(printvalues[0, :, :], 1), cmap=realmap, vmin=vmin, vmax=vmax, levels=30)
         cbar = plt.colorbar(orientation="horizontal", pad=.15, shrink=0.5)
         cbar.set_label(names[number])
         cbar.ax.tick_params(labelsize=11)
@@ -41,7 +45,6 @@ def planeproj(planet, rc, rc_file, phi, theta, Nr, Ntheta, Nphi, potential, fiel
             plt.savefig(planet + "/" + files[number])
 
 def mollweideproj(planet, rc, rc_file, phi, theta, Nr, Ntheta, Nphi, potential, fieldr, fieldtheta, fieldphi, fieldmod):
-    import cartopy.crs as ccrs
     Phi, Theta = np.meshgrid(360 * (1 - phi / 2 / np.pi), - 180 * theta / np.pi + 90)
     names = [r'Potential (Gauss · 1 $R_P$) at $r =$' + str(rc) + '$R_P$', '$B_r$ (Gauss) at $r =$' + str(rc) + '$R_P$',
              '$B_θ$ (Gauss) at $r =$' + str(rc) + '$R_P$', '$B_{\phi}$ (Gauss) at $r =$' + str(rc) + '$R_P$',

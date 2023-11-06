@@ -30,7 +30,7 @@ filecvs, filevtu = False, False
 planeproj, mollweideproj = True, True
 
 # Calculates many magnitudes
-magnitudes = False
+plot_magnitudes = False
 
 # Definition of the spherical grid matrices
 #phi    = np.linspace(1 * np.pi / Nphi, 2 * np.pi *(1 + 1/Nphi), num=Nphi)
@@ -116,7 +116,7 @@ if planeproj: saveplots.planeproj(planet, rc, rc_file, phi, theta, Nr, Ntheta, N
 # Saves Mollweide projection of the magnitudes
 if mollweideproj: saveplots.mollweideproj(planet, rc, rc_file, phi, theta, Nr, Ntheta, Nphi, potential, fieldr, fieldtheta, fieldphi, fieldmod)
 
-#if magnitudes: magnitudes.getMagnitudes(Nr, Ntheta, Nphi, radius, rc, a, dr, phi, theta, potential, fieldr, fieldtheta, fieldphi, fieldmod, planet, year)
+if plot_magnitudes: magnitudes.printMagnitudes(planet, Ntheta, Nphi, radius, rc, rc_file, a, dr, phi, theta, fieldr, fieldtheta, fieldphi, fieldmod)
 
 # Obtain the Lowes spectrum for a the given plotted radius and plot it
 if lowes:

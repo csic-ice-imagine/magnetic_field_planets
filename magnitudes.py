@@ -1,6 +1,18 @@
 import numpy as np
+import os
+import matplotlib.pyplot as plt
+from matplotlib import cm
 
-def getMagnitudes(Ntheta, Nphi, radius, rc, a, dr, phi, theta, fieldr, fieldtheta, fieldphi, fieldmod):
+# Plot parameters
+plt.rcParams['figure.figsize'] = (10, 6)
+plt.rcParams['font.size'] = 10
+plt.rcParams['lines.linewidth'] = 1
+plt.rcParams["figure.autolayout"] = True
+cmap1 = cm.get_cmap('RdBu_r', 255)
+cmap2 = cm.get_cmap('inferno', 255)
+
+
+def printMagnitudes(planet, Ntheta, Nphi, radius, rc, rc_file, a, dr, phi, theta, fieldr, fieldtheta, fieldphi, fieldmod):
 
     fieldmod = np.sqrt(fieldr ** 2 + fieldtheta ** 2 + fieldphi ** 2)
     directionr = fieldr / fieldmod
@@ -120,3 +132,34 @@ def getMagnitudes(Ntheta, Nphi, radius, rc, a, dr, phi, theta, fieldr, fieldthet
     div_L2 = np.sum(volume*divergence**2*divd2)
     curl_L2 = np.sum(volume*curlmod**2*divd2)
     print("B**2, (Div*h)**2 and (Curl*h)**2, integrated:",field_L2,div_L2,curl_L2,np.sum(volume),"dr,Nth,Np:",dr,Ntheta,Nphi)
+
+
+    names = [r'$\nabla \cdot B h$ (Gauss)', r'$|\nabla x B|h$ (Gauss)', r'$(\nabla x B)_r h$ (Gauss)', r'$(\nabla x B)_\theta h$ (Gauss)', r'$(\nabla x B)_\phi h$ (Gauss)', r'$| \kappa |$', 'B', 'Br', 'Btheta', 'Bphi']
+    files = [planet+'_div.png',planet+'_curl_mod.png',planet+'_curlr.png',planet+'_curlth.png',planet+'_curlphi.png',planet+'_k_mod.png',planet+'_b_mod.png',planet+'_br.png',planet+'_btheta.png',planet+'_bphi.png']
+    magnitudes = [divergence*np.sqrt(divd2), curlmod*np.sqrt(divd2), curlr*np.sqrt(divd2), curltheta*np.sqrt(divd2), curlphi*np.sqrt(divd2), curvaturemod, fieldmod[1,:,:], fieldr[1,:,:], fieldtheta[1,:,:], fieldphi[1,:,:]]
+
+    maxf = [ 100.,10., 1., 1., 1.,100.,100., 100., 100., 100.]
+    minf = [-100.,0.,-1.,-1.,-1.,  0.,  0.,-100.,-100.,-100.]
+    printvalues = np.zeros([Ntheta, Nphi])
+    Phi, Theta = np.meshgrid(360 * (1 - phi / 2 / np.pi), - 180 * theta / np.pi + 90)
+
+    for number in range(0,len(magnitudes)):
+        plt.clf()
+        plt.xticks([0, 60, 120, 180, 240, 300, 360])
+        plt.yticks([-90, -60, -30, 0, 30, 60, 90])
+        plt.xlabel("Longitude")
+        plt.ylabel("Latitude")
+
+        printvalues = magnitudes[number]
+        printvalues[np.where(printvalues > maxf[number])] = maxf[number]
+        printvalues[np.where(printvalues < minf[number])] = minf[number]
+        if number == 1 or number == 2:
+            map = cmap2
+        else:
+            map = cmap1
+        plt.contourf(Phi, Theta, printvalues, cmap=map, levels=30)
+        plt.gca().invert_xaxis()
+
+        cbar = plt.colorbar(orientation="horizontal", pad=.1, shrink=0.5)
+        cbar.set_label(names[number])
+        plt.savefig(files[number])
