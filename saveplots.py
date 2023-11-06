@@ -2,12 +2,11 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 from matplotlib import cm
-import cartopy.crs as ccrs
 
 cmap1 = cm.get_cmap('RdBu_r', 255)
 cmap2 = cm.get_cmap('inferno', 255)
 
-def planeproj(planet, rc, rc_file, phi, theta, potential, fieldr, fieldtheta, fieldphi, fieldmod):
+def planeproj(planet, rc, rc_file, phi, theta, potential, fieldr, fieldtheta, fieldphi, fieldmod, ccrs_library):
     Phi, Theta = np.meshgrid(360 * (1 - phi / 2 / np.pi), - 180 * theta / np.pi + 90)
     names = [r'Potential (Gauss · 1 $R_P$) at $r =$' + str(rc) + '$R_P$', 
              '$B_r$ (Gauss) at $r =$' + str(rc) + '$R_P$',
@@ -22,9 +21,13 @@ def planeproj(planet, rc, rc_file, phi, theta, potential, fieldr, fieldtheta, fi
     magnitudes = [potential, fieldr, fieldtheta, fieldphi, fieldmod]
     for index, magnitude in enumerate(magnitudes):
         plt.clf()
-        ax = plt.axes(projection=ccrs.PlateCarree())
-        if planet=="Earth": ax.coastlines()
-        ax.set_xticks([-180,-120,-60,0,60,120,180])
+        if ccrs_library:
+            import cartopy.crs as ccrs
+            ax = plt.axes(projection=ccrs.PlateCarree())
+            if planet=="Earth": ax.coastlines()
+        else:
+            ax = plt.axes()
+        ax.set_xticks([-180,-120,-60,0,60,120,180,240,300,360])
         ax.set_yticks([-90,-60,-30,0,30,60,90])
         ax.set_ylabel("Latitude")
         ax.set_xlabel("Longitude")
@@ -46,6 +49,7 @@ def planeproj(planet, rc, rc_file, phi, theta, potential, fieldr, fieldtheta, fi
             plt.savefig(planet + "/" + files[index])
 
 def mollweideproj(planet, rc, rc_file, phi, theta, potential, fieldr, fieldtheta, fieldphi, fieldmod):
+    import cartopy.crs as ccrs
     Phi, Theta = np.meshgrid(360 * (1 - phi / 2 / np.pi), - 180 * theta / np.pi + 90)
     names = [r'Potential (Gauss · 1 $R_P$) at $r =$' + str(rc) + '$R_P$', 
              '$B_r$ (Gauss) at $r =$' + str(rc) + '$R_P$',

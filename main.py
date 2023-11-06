@@ -29,6 +29,10 @@ filecvs, filevtu = False, False
 # Saves all 2D/Mollweide plots in png format (in case of the Earth it plots the coastline behind)
 planeproj, mollweideproj = True, True
 
+# If you have successfully installed the ccrs library put true (Earth Map will have a coastline)
+ccrs_library = True
+# ATTENTION: To plot with the Mollweide projection you need the ccrs library, to the combination mollweideproj=True, ccrs_library = False will crash
+
 # Calculates many magnitudes
 plot_magnitudes = True
 
@@ -111,7 +115,7 @@ plt.rcParams['lines.linewidth'] = 1
 plt.rcParams["figure.autolayout"] = True
 
 # Saves plane projection of the magnitudes
-if planeproj: saveplots.planeproj(planet, rc, rc_file, phi, theta, potential, fieldr, fieldtheta, fieldphi, fieldmod)
+if planeproj: saveplots.planeproj(planet, rc, rc_file, phi, theta, potential, fieldr, fieldtheta, fieldphi, fieldmod, ccrs_library)
 
 # Saves Mollweide projection of the magnitudes
 if mollweideproj: saveplots.mollweideproj(planet, rc, rc_file, phi, theta, potential, fieldr, fieldtheta, fieldphi, fieldmod)
