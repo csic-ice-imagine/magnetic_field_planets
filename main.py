@@ -9,10 +9,12 @@ import lowes_spec
 # Number of points in the latitudinal (North-South) direction, which automatically sets the longitudinal (East-West) direction. 
 Ntheta = 50
 Nphi = 2*Ntheta
+# Number of shells to be calculated
+Nr = 1 
 
-Nr = 1 # Number of shells to be calculated
-a  = 1  # Should be 6371.2/72492 (Earth/Jupiter), but renormalize to 1, since r/a is what matters
-rc, rc_file = 0.40, "040"  # Radius considered in the map plot (CMB = 0.455/0.85 for Earth/Jupiter), and name of the given files
+rc = 1.00  # Radius considered in the map plot (CMB = 0.455/0.85 for Earth/Jupiter), and name of the given files
+rc_file = str(rc)
+rc_file = rc_file.replace(".","_") # String used for naming the output files
 
 # You can choose either Earth, Jupiter, Jupiter_2021, Saturn, Neptune or Uranus, if you put anything else you will have 0 to everything. 
 # If you choose Earth, you also need to choose a year, which can only be: 1900, 1905, 1910, ..., to 2020.
@@ -24,6 +26,19 @@ filecvs, filevtu = False, False
  
 # Saves all 2D/Mollweide plots in png format (in case of the Earth it plots the coastline behind)
 planeproj, mollweideproj = True, True
+
+# Calculates many magnitudes
+magnitudes = False
+
+# Definition of the spherical grid matrices
+#phi    = np.linspace(1 * np.pi / Nphi, 2 * np.pi *(1 + 1/Nphi), num=Nphi)
+phi    = np.linspace(0, 2*np.pi, num=Nphi)
+theta  = np.linspace(.1 * np.pi / Ntheta, np.pi * (1 - .1 / Ntheta), num=Ntheta)
+if magnitudes:
+    Nr = 3     # To calulate derivatives and laplacians in a given radius we need at least two other shells of points
+    dr = 0.001 # Radial distance between the three shells (in units of the chosen shell set to 1)
+    radius = np.linspace(rc * (1. - dr), rc * (1. + dr), num=Nr)
+else: radius = np.linspace(rc, rc + 3 * rc, num=Nr)
 
 # Saves the Lowes spectrum for the given radius
 lowes = True
@@ -49,12 +64,9 @@ elif planet=="Neptune":
     NPOL=4
     const=1
 
-# Definition of the spherical grid matrices
-phi = np.linspace(0, 2 * np.pi, num=Nphi)
-theta = np.linspace(.1 * np.pi / Ntheta, np.pi * (1 - .1 / Ntheta), num=Ntheta)
-radius = np.linspace(rc, rc + 9 * rc, num=Nr)
-potential = np.zeros([Nr, Ntheta, Nphi])
+
 # Initialize all components of the magnetic field (spherical, cartesian and modulus)
+potential = np.zeros([Nr, Ntheta, Nphi])
 fieldr = np.zeros([Nr, Ntheta, Nphi])
 fieldtheta = np.zeros([Nr, Ntheta, Nphi])
 fieldphi = np.zeros([Nr, Ntheta, Nphi])
@@ -102,10 +114,14 @@ if planeproj: saveplots.planeproj(planet, rc, rc_file, phi, theta, Nr, Ntheta, N
 # Saves Mollweide projection of the magnitudes
 if mollweideproj: saveplots.mollweideproj(planet, rc, rc_file, phi, theta, Nr, Ntheta, Nphi, potential, fieldr, fieldtheta, fieldphi, fieldmod)
 
+#if magnitudes:
+
+# Obtain the Lowes spectrum for a the given plotted radius and plot it
 if lowes:
     Rn = lowes_spec.lowes_spec(NPOL, rc, g, h)
     lowes_spec.plot_lowes(planet, rc, rc_file, Rn)
 
+# Obtian many Lowes spectrum ad different radii and plot them
 if multiple_lowes_r:
     Rn = np.zeros([len(lowes_radii), NPOL])
     for r in range(0,len(lowes_radii)):
