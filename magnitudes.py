@@ -41,6 +41,7 @@ def printMagnitudes(planet, Ntheta, Nphi, radius, rc, rc_file, a, dr, phi, theta
     h_theta = rc * (theta[2] - theta[1])
     for j in range(1, Ntheta - 1):
         h_phi = rc * np.sin(theta[j]) * (phi[2] - phi[1])
+        i = 1
 
         derivphifieldr[j, 0] = .5 * (fieldr[i, j, 1] - fieldr[i, j, Nphi - 1]) / h_phi
         derivphidirectionr[j, 0] = .5 * (directionr[i, j, 1] - directionr[i, j, Nphi - 1]) / h_phi
@@ -57,7 +58,6 @@ def printMagnitudes(planet, Ntheta, Nphi, radius, rc, rc_file, a, dr, phi, theta
         derivphidirectionphi[j, Nphi-1] = .5 * (directionphi[i, j, 0] - directionphi[i, j, Nphi - 2]) / h_phi
 
         for k in range(1, Nphi-1):
-            i = 1
             volume[j,k] = h_r*h_phi*h_theta
             divd2[j,k] = h_r**(2) + h_theta**(2) + h_phi**(2)
 
@@ -133,33 +133,49 @@ def printMagnitudes(planet, Ntheta, Nphi, radius, rc, rc_file, a, dr, phi, theta
     curl_L2 = np.sum(volume*curlmod**2*divd2)
     print("B**2, (Div*h)**2 and (Curl*h)**2, integrated:",field_L2,div_L2,curl_L2,np.sum(volume),"dr,Nth,Np:",dr,Ntheta,Nphi)
 
-
-    names = [r'$\nabla \cdot B h$ (Gauss)', r'$|\nabla x B|h$ (Gauss)', r'$(\nabla x B)_r h$ (Gauss)', r'$(\nabla x B)_\theta h$ (Gauss)', r'$(\nabla x B)_\phi h$ (Gauss)', r'$| \kappa |$', 'B', 'Br', 'Btheta', 'Bphi']
-    files = [planet+'_div.png',planet+'_curl_mod.png',planet+'_curlr.png',planet+'_curlth.png',planet+'_curlphi.png',planet+'_k_mod.png',planet+'_b_mod.png',planet+'_br.png',planet+'_btheta.png',planet+'_bphi.png']
-    magnitudes = [divergence*np.sqrt(divd2), curlmod*np.sqrt(divd2), curlr*np.sqrt(divd2), curltheta*np.sqrt(divd2), curlphi*np.sqrt(divd2), curvaturemod, fieldmod[1,:,:], fieldr[1,:,:], fieldtheta[1,:,:], fieldphi[1,:,:]]
+    names = [r'$\nabla \cdot B h$ (Gauss)' + str(rc) + '$R_P$', 
+             r'$|\nabla x B|h$ (Gauss)' + str(rc) + '$R_P$', 
+             r'$(\nabla x B)_r h$ (Gauss)' + str(rc) + '$R_P$', 
+             r'$(\nabla x B)_\theta h$ (Gauss)' + str(rc) + '$R_P$', 
+             r'$(\nabla x B)_\phi h$ (Gauss)' + str(rc) + '$R_P$', 
+             r'$| \kappa |$' + str(rc) + '$R_P$']
+    files = [planet+ '_r_' + rc_file +'_div.png',
+             planet+ '_r_' + rc_file+'_curl_mod.png',
+             planet+ '_r_' + rc_file+'_curlr.png',
+             planet+ '_r_' + rc_file+'_curlth.png',
+             planet+ '_r_' + rc_file+'_curlphi.png',
+             planet+ '_r_' + rc_file+'_k_mod.png']
+    magnitudes = [divergence*np.sqrt(divd2), 
+                  curlmod*np.sqrt(divd2), 
+                  curlr*np.sqrt(divd2), 
+                  curltheta*np.sqrt(divd2), 
+                  curlphi*np.sqrt(divd2), 
+                  curvaturemod]
 
     maxf = [ 100.,10., 1., 1., 1.,100.,100., 100., 100., 100.]
     minf = [-100.,0.,-1.,-1.,-1.,  0.,  0.,-100.,-100.,-100.]
-    printvalues = np.zeros([Ntheta, Nphi])
     Phi, Theta = np.meshgrid(360 * (1 - phi / 2 / np.pi), - 180 * theta / np.pi + 90)
 
-    for number in range(0,len(magnitudes)):
+    for index, magnitude in enumerate(magnitudes):
         plt.clf()
         plt.xticks([0, 60, 120, 180, 240, 300, 360])
         plt.yticks([-90, -60, -30, 0, 30, 60, 90])
         plt.xlabel("Longitude")
         plt.ylabel("Latitude")
-
-        printvalues = magnitudes[number]
-        printvalues[np.where(printvalues > maxf[number])] = maxf[number]
-        printvalues[np.where(printvalues < minf[number])] = minf[number]
-        if number == 1 or number == 2:
+        magnitude[np.where(magnitude > maxf[index])] = maxf[index]
+        magnitude[np.where(magnitude < minf[index])] = minf[index]
+        if index == 1 or index == 2:
             map = cmap2
         else:
             map = cmap1
-        plt.contourf(Phi, Theta, printvalues, cmap=map, levels=30)
+        plt.contourf(Phi, Theta, magnitude, cmap=map, levels=30)
         plt.gca().invert_xaxis()
 
         cbar = plt.colorbar(orientation="horizontal", pad=.1, shrink=0.5)
-        cbar.set_label(names[number])
-        plt.savefig(files[number])
+        cbar.set_label(names[index])
+        cbar.ax.tick_params(labelsize=11)
+        print("Saving " + planet + "/" + files[index])
+        try: plt.savefig(planet + "/" + files[index])
+        except:
+            os.mkdir(planet)
+            plt.savefig(planet + "/" + files[index])
