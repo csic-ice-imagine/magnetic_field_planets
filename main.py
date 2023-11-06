@@ -40,7 +40,7 @@ plot_magnitudes = True
 #phi    = np.linspace(1 * np.pi / Nphi, 2 * np.pi *(1 + 1/Nphi), num=Nphi)
 phi    = np.linspace(0, 2*np.pi, num=Nphi)
 theta  = np.linspace(.1 * np.pi / Ntheta, np.pi * (1 - .1 / Ntheta), num=Ntheta)
-if magnitudes:
+if plot_magnitudes:
     Nr = 3     # To calulate derivatives and laplacians in a given radius we need at least two other shells of points
     dr = 0.001 # Radial distance between the three shells (in units of the chosen shell set to 1)
     radius = np.linspace(rc * (1. - dr), rc * (1. + dr), num=Nr)
@@ -51,6 +51,7 @@ lowes = True
 # Saves the Lowes spectrum for a number of radii
 multiple_lowes_r, lowes_radii = False, np.array([1.45,1.30,1.15,1.00,0.85,0.70,0.55])
 
+# Depending on the planet you choose, the data will have different multipole definition and will be normalized in nT or G
 if planet=="Earth":
     NPOL=14
     const = 1e5  # To go from nanotesla to gauss (usually the plots are using gauss) if necessary
@@ -70,17 +71,6 @@ elif planet=="Neptune":
     NPOL=4
     const=1
 
-
-# Initialize all components of the magnetic field (spherical, cartesian and modulus)
-potential = np.zeros([Nr, Ntheta, Nphi])
-fieldr = np.zeros([Nr, Ntheta, Nphi])
-fieldtheta = np.zeros([Nr, Ntheta, Nphi])
-fieldphi = np.zeros([Nr, Ntheta, Nphi])
-fieldmod = np.zeros([Nr, Ntheta, Nphi])
-fieldx = np.zeros([Nr, Ntheta, Nphi])
-fieldy = np.zeros([Nr, Ntheta, Nphi])
-fieldz = np.zeros([Nr, Ntheta, Nphi])
-
 # This part defines the K and S matrices with dimension NPOL x NPOL, depending on the 
 # planet and the year
 g, h = reader.reader(planet, year, NPOL)
@@ -91,6 +81,16 @@ K, S = schmidt.KandS(NPOL)
 # This part defines the Gaussian-normalized and
 # the Schmidt quasi-normalized associated Legendre polynomials
 P, derivP = schmidt.Schmidtcoefficients(NPOL, Ntheta, theta, K, S)
+
+# Initialize all components of the magnetic field (spherical, cartesian and modulus)
+potential = np.zeros([Nr, Ntheta, Nphi])
+fieldr = np.zeros([Nr, Ntheta, Nphi])
+fieldtheta = np.zeros([Nr, Ntheta, Nphi])
+fieldphi = np.zeros([Nr, Ntheta, Nphi])
+fieldmod = np.zeros([Nr, Ntheta, Nphi])
+fieldx = np.zeros([Nr, Ntheta, Nphi])
+fieldy = np.zeros([Nr, Ntheta, Nphi])
+fieldz = np.zeros([Nr, Ntheta, Nphi])
 
 # Loops for all r, theta and phi and obtaining all the corresponding potential and fields
 for j in range(0, Ntheta):
