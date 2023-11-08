@@ -1,3 +1,5 @@
+# magnitudes.py calculates and plots other interesting magnitudes, mainly curl, curvature and divergence. Others could be added.
+
 import numpy as np
 import os
 import matplotlib.pyplot as plt

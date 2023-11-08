@@ -1,3 +1,6 @@
+# lowes_spec.py has the function that calculates the Lowes spectrum at a given radius, and also has two other functions which
+# plot one or several spectra depending on the options given in main.py
+
 import numpy as np
 import matplotlib.pyplot as plt
 

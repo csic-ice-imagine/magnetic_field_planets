@@ -1,14 +1,21 @@
+# reader.py reads the files in data/ depending on which planet is chosen. 
+# Still to be implemented the G and H constants fro Jupiter 2021 for external sources 
+# Tables from Jupiter adn Earth are directly obtained from free sources, the others
+# have been constructed manually from data on "old" Voyager papers or a reduced table 
+# from Saturn (it has few non-zero multipoles).
+
 import numpy as np
 
-# This part defines the K and S matrices with dimension NPOL x NPOL, depending on the 
-# planet and the year
 def reader(planet, year, NPOL):
     if planet == "Earth":
+        # Initialitze the set of g and h constants to be filled by table values.
+        # Only half of them is filled (as n<m) and maybe there is a better way to implement this.
         g = np.zeros([NPOL, NPOL])
         h = np.zeros([NPOL, NPOL])
         # The variable index is the column corresponding to that year
         index = int((year - 1900) / 5 + 3)
         file = open("data/igrf13coeffs.txt", "r")
+        # Remove the introductory lines, careful not to skip the first multipole.
         lines = file.readlines()[4:]
         for n in range(0, len(lines)):
             file_list = [i for i in lines[n].split()]

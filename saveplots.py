@@ -1,3 +1,7 @@
+# saveplots.py contains two functions that either plot the given magnitudes in a plane projections or Mollweide
+# projection. Take into account that for the Molleweide projection and the coastline in the plane Earth projection
+# you need to have cartopy installed.
+
 import numpy as np
 import os
 import matplotlib.pyplot as plt

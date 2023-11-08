@@ -1,3 +1,6 @@
+# saveoutput.py saves cvs giles or vtu files for more advanced 3D visualizations, such as paraview. This should be
+# checked for errors. 
+
 import numpy as np
 import csv
 

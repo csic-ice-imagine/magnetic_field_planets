@@ -1,3 +1,8 @@
+
+# This file contains the functions related to the constructions fo the Schmidt coefficients, which 
+# make it the most important script. It is very important to reduce the number of loops and avoid
+# repeating calculations, thus if you see some improvement contact us!
+
 import numpy as np
 
 # This function creates all K and S
