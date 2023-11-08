@@ -135,12 +135,12 @@ def printMagnitudes(planet, Ntheta, Nphi, radius, rc, rc_file, a, dr, phi, theta
     curl_L2 = np.sum(volume*curlmod**2*divd2)
     print("B**2, (Div*h)**2 and (Curl*h)**2, integrated:",field_L2,div_L2,curl_L2,np.sum(volume),"dr,Nth,Np:",dr,Ntheta,Nphi)
 
-    names = [r'$\nabla \cdot B h$ (Gauss)' + str(rc) + '$R_P$', 
-             r'$|\nabla x B|h$ (Gauss)' + str(rc) + '$R_P$', 
-             r'$(\nabla x B)_r h$ (Gauss)' + str(rc) + '$R_P$', 
-             r'$(\nabla x B)_\theta h$ (Gauss)' + str(rc) + '$R_P$', 
-             r'$(\nabla x B)_\phi h$ (Gauss)' + str(rc) + '$R_P$', 
-             r'$| \kappa |$' + str(rc) + '$R_P$']
+    names = [r'$\nabla \cdot B h$ (Gauss) at $r =$' + str(rc) + '$R_P$', 
+             r'$|\nabla x B|h$ (Gauss) at $r =$' + str(rc) + '$R_P$', 
+             r'$(\nabla x B)_r h$ (Gauss) at $r =$' + str(rc) + '$R_P$', 
+             r'$(\nabla x B)_\theta h$ (Gauss) at $r =$' + str(rc) + '$R_P$', 
+             r'$(\nabla x B)_\phi h$ (Gauss) at $r =$' + str(rc) + '$R_P$', 
+             r'$| \kappa |$ at $r =$' + str(rc) + '$R_P$']
     files = [planet+ '_r_' + rc_file +'_div.png',
              planet+ '_r_' + rc_file+'_curl_mod.png',
              planet+ '_r_' + rc_file+'_curlr.png',

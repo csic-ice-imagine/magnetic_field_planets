@@ -13,14 +13,13 @@ Nphi = 2*Ntheta
 # Number of shells to be calculated
 Nr = 1 
 
-a = 1  # Should be 6371.2/72492 (Earth/Jupiter), but renormalize to 1, since r/a is what matters
+a = 1  # Should be 6371.2/72492 (Earth/Jupiter), but renormalize to 1, since r/a is what matters. It is used only for the calculation of some magnitudes
 rc = 1.00  # Radius considered in the map plot (CMB = 0.455/0.85 for Earth/Jupiter), and name of the given files
-rc_file = str(rc)
-rc_file = rc_file.replace(".","_") # String used for naming the output files
 
-# You can choose either Earth, Jupiter, Jupiter_2021, Saturn, Neptune or Uranus, if you put anything else you will have 0 to everything. 
+# You can choose either Earth, Jupiter, Jupiter_2021, Saturn, Neptune, Uranus, Mercury and Ganymede if you put anything else you 
+# will have 0 to everything. 
+planet = "Mercury"
 # If you choose Earth, you also need to choose a year, which can only be: 1900, 1905, 1910, ..., to 2020.
-planet = "Earth"
 year = 2020
 
 # Saves a csv file with potencial, Br, Btheta, Bphi and Bmod. Use with only 1 Nr, for spherical plots
@@ -37,6 +36,15 @@ ccrs_library = True
 # Calculates many magnitudes
 plot_magnitudes = True
 
+# Saves the Lowes spectrum for the given radius
+lowes = True
+# Saves the Lowes spectrum for a number of radii
+multiple_lowes_r, lowes_radii = False, np.array([1.45,1.30,1.15,1.00,0.85,0.70,0.55])
+
+
+rc_file = str(rc)
+rc_file = rc_file.replace(".","_") # String used for naming the output files
+
 # Definition of the spherical grid matrices
 #phi    = np.linspace(1 * np.pi / Nphi, 2 * np.pi *(1 + 1/Nphi), num=Nphi)
 phi    = np.linspace(0, 2*np.pi, num=Nphi)
@@ -47,30 +55,34 @@ if plot_magnitudes:
     radius = np.linspace(rc * (1. - dr), rc * (1. + dr), num=Nr)
 else: radius = np.linspace(rc, rc + 3 * rc, num=Nr)
 
-# Saves the Lowes spectrum for the given radius
-lowes = True
-# Saves the Lowes spectrum for a number of radii
-multiple_lowes_r, lowes_radii = False, np.array([1.45,1.30,1.15,1.00,0.85,0.70,0.55])
 
 # Depending on the planet you choose, the data will have different multipole definition and will be normalized in nT or G
 if planet=="Earth":
     NPOL=14
-    const = 1e5  # To go from nanotesla to gauss (usually the plots are using gauss) if necessary
+    const=1e5  # To go from nanotesla to gauss (usually the plots are using gauss) if necessary
 elif planet=="Jupiter":
     NPOL=11
-    const = 1e5
+    const=1e5
 elif planet=="Jupiter_2021":
     NPOL=13
-    const = 1e5
+    const=1e5
 elif planet=="Saturn":
     NPOL=7
-    const = 1e5
+    const=1e5
 elif planet=="Uranus":
     NPOL=4
     const=1      # Uranus and Neptune coefficients are already in Gauss 
 elif planet=="Neptune":
     NPOL=4
     const=1
+elif planet=="Mercury":
+    NPOL=4
+    const=1e5
+elif planet=="Ganymede":
+    NPOL=3
+    const=1e5
+else:
+    NPOL=0
 
 # This part defines the K and S matrices with dimension NPOL x NPOL, depending on the 
 # planet and the year

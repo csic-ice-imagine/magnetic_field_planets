@@ -80,7 +80,32 @@ def reader(planet, year, NPOL):
                 g[int(file_list[1]), int(file_list[2])] = float(file_list[7])
             else:
                 h[int(file_list[1]), int(file_list[2])] = float(file_list[7])
+    elif planet == "Mercury":
+        g = np.zeros([NPOL, NPOL])
+        h = np.zeros([NPOL, NPOL])
+        file = open("data/mercury_model_toepfet21.txt", "r")
+        lines = file.readlines()[2:]
+        for n in range(0, len(lines)):
+            file_list = [i for i in lines[n].split()]
+            if file_list[0] == 'g':
+                g[int(file_list[1]), int(file_list[2])] = float(file_list[3])
+            elif file_list[3] == 'h':
+                h[int(file_list[1]), int(file_list[2])] = float(file_list[3])
+            else:
+                continue
+    elif planet == "Ganymede":
+        g = np.zeros([NPOL, NPOL])
+        h = np.zeros([NPOL, NPOL])
+        file = open("data/ganymede_models_weber22.txt", "r")
+        lines = file.readlines()[2:]
+        for n in range(0, len(lines)):
+            file_list = [i for i in lines[n].split()]
+            if file_list[0] == 'g':
+                g[int(file_list[1]), int(file_list[2])] = float(file_list[3])
+            else:
+                h[int(file_list[1]), int(file_list[2])] = float(file_list[3])
     else:
-        NPOL = 0
+        print("There is no option for " + planet + " (maybe you had a typo)")
+        raise SystemExit
     
     return g,h
