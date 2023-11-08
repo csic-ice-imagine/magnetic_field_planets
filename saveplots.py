@@ -42,7 +42,10 @@ def planeproj(planet, rc, rc_file, phi, theta, potential, fieldr, fieldtheta, fi
         else:
             realmap = cmap1
             vmin, vmax = -limit, limit
-        plt.contourf(Phi, Theta, np.flip(magnitude[0, :, :], 1), cmap=realmap, vmin=vmin, vmax=vmax, levels=30)
+        if planet == "Earth":
+            plt.contourf(Phi, Theta, np.flip(magnitude[0, :, :], 1), cmap=realmap, vmin=vmin, vmax=vmax, levels=30)
+        else:
+            plt.contourf(Phi, Theta, magnitude[0, :, :], cmap=realmap, vmin=vmin, vmax=vmax, levels=30)
         cbar = plt.colorbar(orientation="horizontal", pad=.15, shrink=0.5)
         cbar.set_label(names[index])
         cbar.ax.tick_params(labelsize=11)

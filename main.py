@@ -20,7 +20,8 @@ rc_file = rc_file.replace(".","_") # String used for naming the output files
 
 # You can choose either Earth, Jupiter, Jupiter_2021, Saturn, Neptune or Uranus, if you put anything else you will have 0 to everything. 
 # If you choose Earth, you also need to choose a year, which can only be: 1900, 1905, 1910, ..., to 2020.
-planet, year = "Earth", 2020
+planet = "Earth"
+year = 2020
 
 # Saves a csv file with potencial, Br, Btheta, Bphi and Bmod. Use with only 1 Nr, for spherical plots
 # Saves a vtu file (Paraview for 3D visualization) with Bx, By, Bz. Use more than 1 Nr, as cells are used

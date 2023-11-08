@@ -43,12 +43,14 @@ def reader(planet, year, NPOL):
             file_list = [i for i in lines[n].split()]
             if file_list[3] == 'g':
                 g[int(file_list[4]), int(file_list[5])] = float(file_list[1])
-            else:
+            elif file_list[3] == 'h':
                 h[int(file_list[4]), int(file_list[5])] = float(file_list[1])
+            else:
+                continue
     elif planet == "Saturn":
         g = np.zeros([NPOL, NPOL])
         h = np.zeros([NPOL, NPOL])
-        file = open("data/saturn_model_dougherty18.txt", "r")
+        file = open("data/saturn_models_dougherty18.txt", "r")
         lines = file.readlines()[2:]
         for n in range(0, len(lines)):
             file_list = [i for i in lines[n].split()]
@@ -70,7 +72,7 @@ def reader(planet, year, NPOL):
     elif planet == "Neptune":
         g = np.zeros([NPOL, NPOL])
         h = np.zeros([NPOL, NPOL])
-        file = open("data/neptune_model_selesnick92.txt", "r")
+        file = open("data/neptune_models_selesnick92.txt", "r")
         lines = file.readlines()[2:]
         for n in range(0, len(lines)):
             file_list = [i for i in lines[n].split()]
