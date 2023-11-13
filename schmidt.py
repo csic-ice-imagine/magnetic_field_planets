@@ -5,7 +5,8 @@
 
 import numpy as np
 
-# This function creates all K and S
+# This function creates all K and S for a given number of multipoles, the definitions for these 
+# expressions can be found in the pdfs in docs/
 def KandS(NPOL):
     K = np.zeros([NPOL, NPOL])
     S = np.zeros([NPOL, NPOL])
@@ -26,6 +27,8 @@ def KandS(NPOL):
                 S[n, m] = S[n, m - 1] * np.sqrt((n - m + 1) * (delta + 1) / (n + m))
     return K, S
 
+# This function creates all Schmidt quasi-normalized Legendre polynomials for a given resolution 
+# and up to a given number of multipoles. This functions needs a set of already calculated K and S
 def Schmidtcoefficients(NPOL, Ntheta, theta, K, S):
     Pgauss = np.zeros([NPOL, NPOL, Ntheta])
     derivPgauss = np.zeros([NPOL, NPOL, Ntheta])
@@ -56,6 +59,9 @@ def Schmidtcoefficients(NPOL, Ntheta, theta, K, S):
 
     return P, derivP
 
+# This function creates the potencial spherical harmonic expansion for the magnetic field, and then 
+# its components for one value of theta. Thus it need to be in a loop for r and phi. It needs as an input 
+# the phi/theta grid, a given radius and theta
 def potentialfunction(radius, ntheta, phi, theta, NPOL, P, derivP, const, g, h):
     poten, fr, ftheta, fphi = 0, 0, 0, 0
     for n in range(1, NPOL):
@@ -66,6 +72,20 @@ def potentialfunction(radius, ntheta, phi, theta, NPOL, P, derivP, const, g, h):
             sumaphi += m * P[n, m, ntheta] * (- g[n, m] * np.sin(m * phi) + h[n, m] * np.cos(m * phi))
         poten += suma * (1 / radius) ** (n + 1)
         fr += suma * (n + 1) * (1 / radius) ** (n + 2)
+        ftheta += - sumatheta * (1 / radius) ** (n + 2)
+        fphi += - sumaphi * (1 / radius) ** (n + 2) / np.sin(theta[ntheta])
+    return poten / const, fr / const, ftheta / const, fphi / const
+
+def potentialfunctionexternal(radius, ntheta, phi, theta, NPOL, P, derivP, const, G, H):
+    poten, fr, ftheta, fphi = 0, 0, 0, 0
+    for n in range(1, NPOL):
+        suma, sumatheta, sumaphi = 0, 0, 0
+        for m in range(0, n + 1):
+            suma += P[n, m, ntheta] * (G[n, m] * np.cos(m * phi) + h[n, m] * np.sin(m * phi))
+            sumatheta += derivP[n, m, ntheta] * (G[n, m] * np.cos(m * phi) + H[n, m] * np.sin(m * phi))
+            sumaphi += m * P[n, m, ntheta] * (- G[n, m] * np.sin(m * phi) + H[n, m] * np.cos(m * phi))
+        poten += suma * radius ** (n + 1)
+        fr += suma * (n + 1) * radius ** n
         ftheta += - sumatheta * (1 / radius) ** (n + 2)
         fphi += - sumaphi * (1 / radius) ** (n + 2) / np.sin(theta[ntheta])
     return poten / const, fr / const, ftheta / const, fphi / const
