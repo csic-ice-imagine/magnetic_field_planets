@@ -6,12 +6,14 @@
 
 import numpy as np
 
-def reader(planet, year, NPOL):
+def reader(planet, year, NPOL, NPOL_EXT):
+    g = np.zeros([NPOL, NPOL])
+    h = np.zeros([NPOL, NPOL])
+    G = np.zeros([NPOL_EXT, NPOL_EXT])
+    H = np.zeros([NPOL_EXT, NPOL_EXT])
     if planet == "Earth":
         # Initialitze the set of g and h constants to be filled by table values.
         # Only half of them is filled (as n<m) and maybe there is a better way to implement this.
-        g = np.zeros([NPOL, NPOL])
-        h = np.zeros([NPOL, NPOL])
         # The variable index is the column corresponding to that year
         index = int((year - 1900) / 5 + 3)
         file = open("data/igrf13coeffs.txt", "r")
@@ -24,8 +26,6 @@ def reader(planet, year, NPOL):
             else:
                 h[int(file_list[1]), int(file_list[2])] = float(file_list[index])
     elif planet == "Jupiter":
-        g = np.zeros([NPOL, NPOL])
-        h = np.zeros([NPOL, NPOL])
         file = open("data/grl57087-sup-0005-2018GL077312-ds01.txt", "r")
         lines = file.readlines()[1:]
         for n in range(0, len(lines)):
@@ -35,8 +35,6 @@ def reader(planet, year, NPOL):
             else:
                 h[int(file_list[4]), int(file_list[5])] = float(file_list[1])
     elif planet == "Jupiter_2021":
-        g = np.zeros([NPOL, NPOL])
-        h = np.zeros([NPOL, NPOL])
         file = open("data/2021JE007055-sup-0002-Table+SI-S01.txt", "r")
         lines = file.readlines()[1:]
         for n in range(0, NPOL**2-1):
@@ -45,11 +43,11 @@ def reader(planet, year, NPOL):
                 g[int(file_list[4]), int(file_list[5])] = float(file_list[1])
             elif file_list[3] == 'h':
                 h[int(file_list[4]), int(file_list[5])] = float(file_list[1])
+            elif file_list[3] == 'G':
+                G[int(file_list[4]), int(file_list[5])] = float(file_list[1])
             else:
-                continue
+                H[int(file_list[4]), int(file_list[5])] = float(file_list[1])
     elif planet == "Saturn":
-        g = np.zeros([NPOL, NPOL])
-        h = np.zeros([NPOL, NPOL])
         file = open("data/saturn_models_dougherty18.txt", "r")
         lines = file.readlines()[2:]
         for n in range(0, len(lines)):
@@ -59,8 +57,6 @@ def reader(planet, year, NPOL):
             else:
                 h[int(file_list[1]), int(file_list[2])] = float(file_list[4])
     elif planet == "Uranus":
-        g = np.zeros([NPOL, NPOL])
-        h = np.zeros([NPOL, NPOL])
         file = open("data/uranus_model_connerney87.txt", "r")
         lines = file.readlines()[2:]
         for n in range(0, len(lines)):
@@ -70,8 +66,6 @@ def reader(planet, year, NPOL):
             else:
                 h[int(file_list[1]), int(file_list[2])] = float(file_list[3])
     elif planet == "Neptune":
-        g = np.zeros([NPOL, NPOL])
-        h = np.zeros([NPOL, NPOL])
         file = open("data/neptune_models_selesnick92.txt", "r")
         lines = file.readlines()[2:]
         for n in range(0, len(lines)):
@@ -81,8 +75,6 @@ def reader(planet, year, NPOL):
             else:
                 h[int(file_list[1]), int(file_list[2])] = float(file_list[7])
     elif planet == "Mercury":
-        g = np.zeros([NPOL, NPOL])
-        h = np.zeros([NPOL, NPOL])
         file = open("data/mercury_model_toepfet21.txt", "r")
         lines = file.readlines()[2:]
         for n in range(0, len(lines)):
@@ -91,11 +83,13 @@ def reader(planet, year, NPOL):
                 g[int(file_list[1]), int(file_list[2])] = float(file_list[3])
             elif file_list[3] == 'h':
                 h[int(file_list[1]), int(file_list[2])] = float(file_list[3])
+            elif file_list[0] == 'G':
+                G[int(file_list[1]), int(file_list[2])] = float(file_list[3])
+            elif file_list[3] == 'H':
+                H[int(file_list[1]), int(file_list[2])] = float(file_list[3])
             else:
                 continue
     elif planet == "Ganymede":
-        g = np.zeros([NPOL, NPOL])
-        h = np.zeros([NPOL, NPOL])
         file = open("data/ganymede_models_weber22.txt", "r")
         lines = file.readlines()[2:]
         for n in range(0, len(lines)):
@@ -108,4 +102,4 @@ def reader(planet, year, NPOL):
         print("There is no option for " + planet + " (maybe you had a typo)")
         raise SystemExit
     
-    return g,h
+    return g,h,G,H

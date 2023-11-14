@@ -18,7 +18,7 @@ rc = 1.00  # Radius considered in the map plot (CMB = 0.455/0.85 for Earth/Jupit
 
 # You can choose either Earth, Jupiter, Jupiter_2021, Saturn, Neptune, Uranus, Mercury and Ganymede if you put anything else you 
 # will have 0 to everything. 
-planet = "Mercury"
+planet = "Earth"
 # If you choose Earth, you also need to choose a year, which can only be: 1900, 1905, 1910, ..., to 2020.
 year = 2020
 
@@ -58,35 +58,35 @@ else: radius = np.linspace(rc, rc + 3 * rc, num=Nr)
 
 # Depending on the planet you choose, the data will have different multipole definition and will be normalized in nT or G
 if planet=="Earth":
-    NPOL=14
+    NPOL,NPOL_EXT=14,0
     const=1e5  # To go from nanotesla to gauss (usually the plots are using gauss) if necessary
 elif planet=="Jupiter":
-    NPOL=11
+    NPOL,NPOL_EXT=11,0
     const=1e5
 elif planet=="Jupiter_2021":
-    NPOL=13
+    NPOL,NPOL_EXT=13,2
     const=1e5
 elif planet=="Saturn":
-    NPOL=7
+    NPOL,NPOL_EXT=7,0
     const=1e5
 elif planet=="Uranus":
-    NPOL=4
+    NPOL,NPOL_EXT=4,0
     const=1      # Uranus and Neptune coefficients are already in Gauss 
 elif planet=="Neptune":
-    NPOL=4
+    NPOL,NPOL_EXT=4,0
     const=1
 elif planet=="Mercury":
-    NPOL=4
+    NPOL,NPOL_EXT=4,2
     const=1e5
 elif planet=="Ganymede":
-    NPOL=3
+    NPOL,NPOL_EXT=3,0
     const=1e5
 else:
-    NPOL=0
+    NPOL,NPOL_EXT=0,0
 
 # This part defines the K and S matrices with dimension NPOL x NPOL, depending on the 
 # planet and the year
-g, h = reader.reader(planet, year, NPOL)
+g, h, G, H = reader.reader(planet, year, NPOL, NPOL_EXT)
 
 # This part defines the K and S matrices with dimension NPOL x NPOL
 K, S = schmidt.KandS(NPOL)
@@ -96,10 +96,10 @@ K, S = schmidt.KandS(NPOL)
 P, derivP = schmidt.Schmidtcoefficients(NPOL, Ntheta, theta, K, S)
 
 # Initialize all components of the magnetic field (spherical, cartesian and modulus)
-potential = np.zeros([Nr, Ntheta, Nphi])
-fieldr = np.zeros([Nr, Ntheta, Nphi])
-fieldtheta = np.zeros([Nr, Ntheta, Nphi])
-fieldphi = np.zeros([Nr, Ntheta, Nphi])
+potential, potential_EXT = np.zeros([Nr, Ntheta, Nphi]), np.zeros([Nr, Ntheta, Nphi])
+fieldr, fieldr_EXT = np.zeros([Nr, Ntheta, Nphi]), np.zeros([Nr, Ntheta, Nphi])
+fieldtheta, fieldtheta_EXT = np.zeros([Nr, Ntheta, Nphi]), np.zeros([Nr, Ntheta, Nphi])
+fieldphi, fieldphi_EXT = np.zeros([Nr, Ntheta, Nphi]), np.zeros([Nr, Ntheta, Nphi])
 fieldmod = np.zeros([Nr, Ntheta, Nphi])
 fieldx = np.zeros([Nr, Ntheta, Nphi])
 fieldy = np.zeros([Nr, Ntheta, Nphi])
@@ -109,6 +109,12 @@ fieldz = np.zeros([Nr, Ntheta, Nphi])
 for j in range(0, Ntheta):
     for k in range(0, Nphi):
         potential[:, j, k], fieldr[:, j, k], fieldtheta[:, j, k], fieldphi[:, j, k] = schmidt.potentialfunction(radius[:], j, phi[k], theta, NPOL, P, derivP, const, g, h)
+        if NPOL_EXT != 0:
+            potential_EXT[:, j, k], fieldr_EXT[:, j, k], fieldtheta_EXT[:, j, k], fieldphi_EXT[:, j, k] = schmidt.potentialfunction(radius[:], j, phi[k], theta, NPOL, P, derivP, const, G, H)
+            potential[:, j, k] += potential_EXT[:, j, k]
+            fieldr[:, j, k] += fieldr_EXT[:, j, k]
+            fieldtheta[:, j, k] += fieldtheta_EXT[:, j, k]
+            fieldphi[:, j, k] += fieldphi_EXT[:, j, k]
         fieldmod[:, j, k] = np.sqrt(fieldr[:, j, k] ** 2 + fieldtheta[:, j, k] ** 2 + fieldphi[:, j, k] ** 2)
         fieldx[:, j, k] = np.cos(phi[k]) * np.sin(theta[j]) * fieldr[:, j, k] + np.cos(phi[k]) * np.cos(theta[j]) * \
                             fieldtheta[:, j, k] - np.sin(phi[j]) * fieldphi[:, j, k]

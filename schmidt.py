@@ -81,11 +81,11 @@ def potentialfunctionexternal(radius, ntheta, phi, theta, NPOL, P, derivP, const
     for n in range(1, NPOL):
         suma, sumatheta, sumaphi = 0, 0, 0
         for m in range(0, n + 1):
-            suma += P[n, m, ntheta] * (G[n, m] * np.cos(m * phi) + h[n, m] * np.sin(m * phi))
+            suma += P[n, m, ntheta] * (G[n, m] * np.cos(m * phi) + H[n, m] * np.sin(m * phi))
             sumatheta += derivP[n, m, ntheta] * (G[n, m] * np.cos(m * phi) + H[n, m] * np.sin(m * phi))
             sumaphi += m * P[n, m, ntheta] * (- G[n, m] * np.sin(m * phi) + H[n, m] * np.cos(m * phi))
-        poten += suma * radius ** (n + 1)
-        fr += suma * (n + 1) * radius ** n
-        ftheta += - sumatheta * (1 / radius) ** (n + 2)
-        fphi += - sumaphi * (1 / radius) ** (n + 2) / np.sin(theta[ntheta])
+        poten += suma * radius ** n
+        fr += - suma * n * radius ** (n - 1)
+        ftheta += - sumatheta * radius ** (n - 1)
+        fphi += - sumaphi * radius ** (n - 1) / np.sin(theta[ntheta])
     return poten / const, fr / const, ftheta / const, fphi / const

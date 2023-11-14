@@ -1,7 +1,13 @@
 # magnetic_solar_planets
 
 
-Repository used to reconstruct the planetary magnetic field with the usual Schmidt semi-normalised spherical harmonic coefficients for Earth, Jupiter, Saturn, Neptune and Uranus. All files from the directory data/ can be found (or constructed) with the open scientific data from the corresponding space mission.
+Repository used to reconstruct the planetary magnetic field with the usual Schmidt semi-normalised spherical harmonic coefficients for Earth, Jupiter, Saturn, Neptune and Uranus. All files from the directory data/ can be found (or constructed) with the open scientific data from the corresponding space missions.
+
+To run the code in terminal you only need to run:
+
+    python main.py
+
+(or python3). Otherwise use anaconda, jupyter, etc.
 
 To enable all the plotting option you need teh cartopy library, which ideally you will have enough by typing:
 
