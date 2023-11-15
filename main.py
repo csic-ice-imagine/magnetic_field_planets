@@ -13,7 +13,7 @@ Nphi = 2*Ntheta  # Number of lingitudial points (East-West direction)
 Nr = 1           # Number of shells to be calculated
 
 a = 1  # Should be 6371.2/72492 (Earth/Jupiter), but renormalize to 1, since r/a is what matters. It is used only for the calculation of some magnitudes
-rc = 1.00  # Radius considered in the map plot (CMB = 0.455/0.85 for Earth/Jupiter), and name of the given files
+rc = 0.85  # Radius considered in the map plot (CMB = 0.455/0.85 for Earth/Jupiter), and name of the given files
 
 # Planet (or satellite) to choose. The tables with public data are located in the folder data/
 planet = "Jupiter_2021"
@@ -82,14 +82,11 @@ elif planet=="Ganymede":
     NPOL,NPOL_EXT=3,0
     const=1e5
 else:
-    NPOL,NPOL_EXT=0,0
+    N
 
 # This part defines the K and S matrices with dimension NPOL x NPOL, depending on the 
 # planet and the year
 g, h, G, H = reader.reader(planet, year, NPOL, NPOL_EXT)
-
-print(G)
-print(H)
 
 # This part defines the K and S matrices with dimension NPOL x NPOL
 K, S = schmidt.KandS(NPOL)

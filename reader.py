@@ -39,14 +39,16 @@ def reader(planet, year, NPOL, NPOL_EXT):
         lines = file.readlines()[1:]
         for n in range(0, len(lines)):
             file_list = [i for i in lines[n].split()]
-            if file_list[3] == 'g':
-                g[int(file_list[4]), int(file_list[5])] = float(file_list[1])
-            elif file_list[3] == 'h':
-                h[int(file_list[4]), int(file_list[5])] = float(file_list[1])
-            elif file_list[3] == 'G':
-                G[int(file_list[4]), int(file_list[5])] = float(file_list[1])
-            elif file_list[3] == 'H':
-                H[int(file_list[4]), int(file_list[5])] = float(file_list[1])
+            error = float(file_list[2].replace('(','').replace(')',''))
+            if n < 195 or n > 959:
+                if file_list[3] == 'g':
+                    g[int(file_list[4]), int(file_list[5])] = float(file_list[1])
+                elif file_list[3] == 'h':
+                    h[int(file_list[4]), int(file_list[5])] = float(file_list[1])
+                elif file_list[3] == 'G':
+                    G[int(file_list[4]), int(file_list[5])] = float(file_list[1])
+                elif file_list[3] == 'H':
+                    H[int(file_list[4]), int(file_list[5])] = float(file_list[1])
     elif planet == "Saturn":
         file = open("data/saturn_models_dougherty18.txt", "r")
         lines = file.readlines()[2:]
