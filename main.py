@@ -7,39 +7,39 @@ import saveplots
 import lowes_spec
 import magnitudes
 
-# Number of points in the latitudinal (North-South) direction, which automatically sets the longitudinal (East-West) direction. 
-Ntheta = 50
-Nphi = 2*Ntheta
-# Number of shells to be calculated
-Nr = 1 
+# Plot resolution, increase to make plots more accurate.
+Ntheta = 50      # Number of points in the latitudinal (North-South direction)
+Nphi = 2*Ntheta  # Number of lingitudial points (East-West direction)
+Nr = 1           # Number of shells to be calculated
 
 a = 1  # Should be 6371.2/72492 (Earth/Jupiter), but renormalize to 1, since r/a is what matters. It is used only for the calculation of some magnitudes
 rc = 1.00  # Radius considered in the map plot (CMB = 0.455/0.85 for Earth/Jupiter), and name of the given files
 
-# You can choose either Earth, Jupiter, Jupiter_2021, Saturn, Neptune, Uranus, Mercury and Ganymede if you put anything else you 
-# will have 0 to everything. 
-planet = "Earth"
+# Planet (or satellite) to choose. The tables with public data are located in the folder data/
+planet = "Jupiter_2021"
+# You can choose either Earth, Jupiter, Jupiter_2021, Saturn, Neptune, Uranus, Mercury and Ganymede. Anything else will make the code stop.
 # If you choose Earth, you also need to choose a year, which can only be: 1900, 1905, 1910, ..., to 2020.
 year = 2020
+ 
+# Switches to save projections in plane and Mollweide projections. Coastlines are included in Earth plots.
+planeproj, mollweideproj = True, True
+# If you have successfully installed the ccrs library you can put the Earth coastline in the Earth plane projections also, using the boolean ccrs_library
+ccrs_library = True
+
+# ATTENTION: To plot using the Mollweide projection you need the ccrs library. The combination mollweideproj=True, ccrs_library=False will crash if you have 
+# not installed this library
+
+# Switch to plot the curl, divergence and curvature of the magnetic field
+plot_magnitudes = True
+
+# Switch to save the Lowes spectrum for the given radius
+lowes = True
+# Switch to save the Lowes spectrum for a number of radii
+multiple_lowes_r, lowes_radii = False, np.array([1.45,1.30,1.15,1.00,0.85,0.70,0.55])
 
 # Saves a csv file with potencial, Br, Btheta, Bphi and Bmod. Use with only 1 Nr, for spherical plots
 # Saves a vtu file (Paraview for 3D visualization) with Bx, By, Bz. Use more than 1 Nr, as cells are used
 filecvs, filevtu = False, False
- 
-# Saves all 2D/Mollweide plots in png format (in case of the Earth it plots the coastline behind)
-planeproj, mollweideproj = True, True
-
-# If you have successfully installed the ccrs library put true (Earth Map will have a coastline)
-ccrs_library = True
-# ATTENTION: To plot with the Mollweide projection you need the ccrs library, to the combination mollweideproj=True, ccrs_library = False will crash
-
-# Calculates many magnitudes
-plot_magnitudes = True
-
-# Saves the Lowes spectrum for the given radius
-lowes = True
-# Saves the Lowes spectrum for a number of radii
-multiple_lowes_r, lowes_radii = False, np.array([1.45,1.30,1.15,1.00,0.85,0.70,0.55])
 
 
 rc_file = str(rc)
@@ -64,7 +64,7 @@ elif planet=="Jupiter":
     NPOL,NPOL_EXT=11,0
     const=1e5
 elif planet=="Jupiter_2021":
-    NPOL,NPOL_EXT=13,2
+    NPOL,NPOL_EXT=31,2
     const=1e5
 elif planet=="Saturn":
     NPOL,NPOL_EXT=7,0
@@ -88,6 +88,9 @@ else:
 # planet and the year
 g, h, G, H = reader.reader(planet, year, NPOL, NPOL_EXT)
 
+print(G)
+print(H)
+
 # This part defines the K and S matrices with dimension NPOL x NPOL
 K, S = schmidt.KandS(NPOL)
 
@@ -110,7 +113,7 @@ for j in range(0, Ntheta):
     for k in range(0, Nphi):
         potential[:, j, k], fieldr[:, j, k], fieldtheta[:, j, k], fieldphi[:, j, k] = schmidt.potentialfunction(radius[:], j, phi[k], theta, NPOL, P, derivP, const, g, h)
         if NPOL_EXT != 0:
-            potential_EXT[:, j, k], fieldr_EXT[:, j, k], fieldtheta_EXT[:, j, k], fieldphi_EXT[:, j, k] = schmidt.potentialfunction(radius[:], j, phi[k], theta, NPOL, P, derivP, const, G, H)
+            potential_EXT[:, j, k], fieldr_EXT[:, j, k], fieldtheta_EXT[:, j, k], fieldphi_EXT[:, j, k] = schmidt.potentialfunctionexternal(radius[:], j, phi[k], theta, NPOL_EXT, P, derivP, const, G, H)
             potential[:, j, k] += potential_EXT[:, j, k]
             fieldr[:, j, k] += fieldr_EXT[:, j, k]
             fieldtheta[:, j, k] += fieldtheta_EXT[:, j, k]

@@ -37,7 +37,7 @@ def reader(planet, year, NPOL, NPOL_EXT):
     elif planet == "Jupiter_2021":
         file = open("data/2021JE007055-sup-0002-Table+SI-S01.txt", "r")
         lines = file.readlines()[1:]
-        for n in range(0, NPOL**2-1):
+        for n in range(0, len(lines)):
             file_list = [i for i in lines[n].split()]
             if file_list[3] == 'g':
                 g[int(file_list[4]), int(file_list[5])] = float(file_list[1])
@@ -45,7 +45,7 @@ def reader(planet, year, NPOL, NPOL_EXT):
                 h[int(file_list[4]), int(file_list[5])] = float(file_list[1])
             elif file_list[3] == 'G':
                 G[int(file_list[4]), int(file_list[5])] = float(file_list[1])
-            else:
+            elif file_list[3] == 'H':
                 H[int(file_list[4]), int(file_list[5])] = float(file_list[1])
     elif planet == "Saturn":
         file = open("data/saturn_models_dougherty18.txt", "r")
@@ -81,11 +81,11 @@ def reader(planet, year, NPOL, NPOL_EXT):
             file_list = [i for i in lines[n].split()]
             if file_list[0] == 'g':
                 g[int(file_list[1]), int(file_list[2])] = float(file_list[3])
-            elif file_list[3] == 'h':
+            elif file_list[0] == 'h':
                 h[int(file_list[1]), int(file_list[2])] = float(file_list[3])
             elif file_list[0] == 'G':
                 G[int(file_list[1]), int(file_list[2])] = float(file_list[3])
-            elif file_list[3] == 'H':
+            elif file_list[0] == 'H':
                 H[int(file_list[1]), int(file_list[2])] = float(file_list[3])
             else:
                 continue
