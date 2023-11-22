@@ -7,6 +7,10 @@ import os
 import matplotlib.pyplot as plt
 from matplotlib import cm
 
+plt.rcParams['figure.figsize'] = (10, 7)
+plt.rcParams['font.size'] = 16
+plt.rcParams['lines.linewidth'] = 1
+plt.rcParams["figure.autolayout"] = True
 cmap1 = cm.get_cmap('RdBu_r', 255)
 cmap2 = cm.get_cmap('inferno', 255)
 

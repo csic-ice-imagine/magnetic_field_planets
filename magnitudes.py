@@ -5,14 +5,8 @@ import os
 import matplotlib.pyplot as plt
 from matplotlib import cm
 
-# Plot parameters
-plt.rcParams['figure.figsize'] = (10, 6)
-plt.rcParams['font.size'] = 10
-plt.rcParams['lines.linewidth'] = 1
-plt.rcParams["figure.autolayout"] = True
 cmap1 = cm.get_cmap('RdBu_r', 255)
 cmap2 = cm.get_cmap('inferno', 255)
-
 
 def printMagnitudes(planet, Ntheta, Nphi, radius, rc, rc_file, a, dr, phi, theta, fieldr, fieldtheta, fieldphi, fieldmod):
 

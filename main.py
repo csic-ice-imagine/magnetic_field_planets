@@ -13,10 +13,10 @@ Nphi = 2*Ntheta  # Number of lingitudial points (East-West direction)
 Nr = 1           # Number of shells to be calculated
 
 a = 1  # Should be 6371.2/72492 (Earth/Jupiter), but renormalize to 1, since r/a is what matters. It is used only for the calculation of some magnitudes
-rc = 0.85  # Radius considered in the map plot (CMB = 0.455/0.85 for Earth/Jupiter), and name of the given files
+rc = 0.55  # Radius considered in the map plot (CMB = 0.455/0.85 for Earth/Jupiter), and name of the given files
 
 # Planet (or satellite) to choose. The tables with public data are located in the folder data/
-planet = "Jupiter_2021"
+planet = "Earth"
 # You can choose either Earth, Jupiter, Jupiter_2021, Saturn, Neptune, Uranus, Mercury and Ganymede. Anything else will make the code stop.
 # If you choose Earth, you also need to choose a year, which can only be: 1900, 1905, 1910, ..., to 2020.
 year = 2020
@@ -82,7 +82,7 @@ elif planet=="Ganymede":
     NPOL,NPOL_EXT=3,0
     const=1e5
 else:
-    N
+    NPOL,NPOL_EXT=0,0
 
 # This part defines the K and S matrices with dimension NPOL x NPOL, depending on the 
 # planet and the year
@@ -128,7 +128,8 @@ if filecvs: saveoutput.savecsv(Nr, Ntheta, Nphi, radius, phi, theta, potential, 
 # Prints a vtu file with the cartesian magnetic field, for Paraview 3D visualization
 if filevtu: saveoutput.savevtu(Nr, Ntheta, Nphi, radius, phi, theta, fieldx, fieldy, fieldz, planet, year)
 
-plt.rcParams['figure.figsize'] = (10, 7)
+# Plot parameters
+plt.rcParams['figure.figsize'] = (12, 8)
 plt.rcParams['font.size'] = 16
 plt.rcParams['lines.linewidth'] = 1
 plt.rcParams["figure.autolayout"] = True
