@@ -8,10 +8,10 @@ Nphi = 2*Ntheta  # Longitudial points (East-West direction)
 Nr = 1           # Radial points (change only to generate 3D output)
 
 a = 1  # Should be 6371.2/72492 (Earth/Jupiter), but renormalize to 1, since r/a is what matters. It is used only for the calculation of some magnitudes
-rc = 1.00 # Radius considered in the map plot (CMB = 0.455/0.85 for Earth/Jupiter), and name of the given files
+rc = 0.55  # Radius considered in the map plot (CMB = 0.455/0.85 for Earth/Jupiter), and name of the given files
 
 # Planet (or satellite) to choose. Raw data is located in folder data/
-planet, year = "Jupiter_2021", 2020
+planet, year = "Earth", 2020
 # You can choose either Earth, Jupiter, Jupiter_2021, Saturn, Neptune, Uranus, Mercury
 # and Ganymede. Anything else will make the code stop.  If you choose Earth, you also need
 # to choose a year, which can only be: 1900, 1905, 1910, ..., to 2020.
@@ -20,17 +20,11 @@ planet, year = "Jupiter_2021", 2020
 planeproj, mollweideproj = True, True
 # If you have successfully installed the ccrs library you can put the Earth coastline in the Earth plane projections also, using the boolean ccrs_library
 ccrs_library = True
-
 # ATTENTION: To plot using the Mollweide projection you need the ccrs library. The combination mollweideproj=True, ccrs_library=False will crash if you have 
 # not installed this library
 
-# Switch to plot the curl, divergence and curvature of the magnetic field
-plot_magnitudes = True
-
 # Switch to save the Lowes spectrum for the given radius
 lowes = True
-# Switch to save the Lowes spectrum for a number of radii
-multiple_lowes_r, lowes_radii = True, np.array([1.45,1.30,1.15,1.00,0.85,0.70,0.55])
 
 # Saves a csv file with potencial, Br, Btheta, Bphi and Bmod. Use with only 1 Nr, for spherical plots
 # Saves a vtu file (Paraview for 3D visualization) with Bx, By, Bz. Use more than 1 Nr, as cells are used
@@ -117,12 +111,6 @@ for j in range(0, Ntheta):
                             fieldtheta[:, j, k] + np.cos(phi[j]) * fieldphi[:, j, k]
         fieldz[:, j, k] = np.cos(theta[j]) * fieldr[:, j, k] - np.sin(theta[j]) * fieldtheta[:, j, k]
 
-# Prints a cvs files with all calculated spherical quantities
-if filecvs: saveoutput.savecsv(Nr, Ntheta, Nphi, radius, phi, theta, potential, fieldr, fieldtheta, fieldphi, fieldmod, planet, year)
-
-# Prints a vtu file with the cartesian magnetic field, for Paraview 3D visualization
-if filevtu: saveoutput.savevtu(Nr, Ntheta, Nphi, radius, phi, theta, fieldx, fieldy, fieldz, planet, year)
-
 # Plot parameters
 plt.rcParams['figure.figsize'] = (12, 8)
 plt.rcParams['font.size'] = 16
@@ -130,21 +118,12 @@ plt.rcParams['lines.linewidth'] = 1
 plt.rcParams["figure.autolayout"] = True
 
 # Saves plane projection of the magnitudes
-if planeproj: saveplots.planeproj(planet, rc, rc_file, phi, theta, potential, fieldr, fieldtheta, fieldphi, fieldmod, ccrs_library)
+if planeproj: saveplots.planeproj_1_mag(planet, rc, rc_file, phi, theta, magnitude, magnitude_name, ccrs_library)
 
 # Saves Mollweide projection of the magnitudes
-if mollweideproj: saveplots.mollweideproj(planet, rc, rc_file, phi, theta, potential, fieldr, fieldtheta, fieldphi, fieldmod)
-
-if plot_magnitudes: magnitudes.printMagnitudes(planet, Ntheta, Nphi, radius, rc, rc_file, a, dr, phi, theta, fieldr, fieldtheta, fieldphi, fieldmod)
+if mollweideproj: saveplots.mollweideprojmollweideproj_1_mag(planet, rc, rc_file, phi, theta, magnitude, magnitude_name)
 
 # Obtain the Lowes spectrum for a the given plotted radius and plot it
 if lowes:
     Rn = lowes_spec.lowes_spec(NPOL, rc, g, h)
-    lowes_spec.plot_lowes(planet, rc, rc_file, Rn)
-
-# Obtian many Lowes spectrum ad different radii and plot them
-if multiple_lowes_r:
-    Rn = np.zeros([len(lowes_radii), NPOL])
-    for r in range(0,len(lowes_radii)):
-        Rn[r,:] = lowes_spec.lowes_spec(NPOL, lowes_radii[r], g, h)
-    lowes_spec.plot_multiple_lowes(planet, lowes_radii, Rn)
+    lowes_spec.plot_lowes(planet, rc, rc_file, Rn, movie=True)

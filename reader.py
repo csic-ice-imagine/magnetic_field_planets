@@ -97,9 +97,9 @@ def reader(planet, year, NPOL, NPOL_EXT):
         for n in range(0, len(lines)):
             file_list = [i for i in lines[n].split()]
             if file_list[0] == 'g':
-                g[int(file_list[1]), int(file_list[2])] = float(file_list[3])
+                g[int(file_list[1]), int(file_list[2])] = float(file_list[4])
             else:
-                h[int(file_list[1]), int(file_list[2])] = float(file_list[3])
+                h[int(file_list[1]), int(file_list[2])] = float(file_list[4])
     else:
         print("There is no option for " + planet + " (maybe you had a typo)")
         raise SystemExit
