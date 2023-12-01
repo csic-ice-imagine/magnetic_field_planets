@@ -95,7 +95,10 @@ def mollweideproj(planet, rc, rc_file, phi, theta, potential, fieldr, fieldtheta
             plt.savefig(planet + "/" + files[index])
 
 
-def planeproj_1_magnitude(planet, rc, frame, phi, theta, magnitude, index, ccrs_library):
+def planeproj_1_magnitude(planet, rc, frame, phi, theta, magnitude, index, ccrs_library, year=None, years=False):
+
+    rc_file = '%.3f'%rc
+    rc_file = rc_file.replace(".","_")
 
     Phi, Theta = np.meshgrid(360 * (1 - phi / 2 / np.pi), - 180 * theta / np.pi + 90)
     names = [r'Potential (Gauss · 1 $R_P$) at $r =$' + '%.3f'%rc + '$R_P$', 
@@ -128,20 +131,36 @@ def planeproj_1_magnitude(planet, rc, frame, phi, theta, magnitude, index, ccrs_
         realmap = cmap1
         vmin, vmax = -limit, limit
     if planet == "Earth":
-        plt.contourf(Phi, Theta, np.flip(magnitude[0, :, :], 1), cmap=realmap, vmin=vmin, vmax=vmax, levels=30)
+        plt.contourf(Phi, Theta, np.flip(magnitude), cmap=realmap, vmin=vmin, vmax=vmax, levels=30)
     else:
-        plt.contourf(Phi, Theta, magnitude[0, :, :], cmap=realmap, vmin=vmin, vmax=vmax, levels=30)
+        plt.contourf(Phi, Theta, magnitude, cmap=realmap, vmin=vmin, vmax=vmax, levels=30)
     cbar = plt.colorbar(orientation="horizontal", pad=.15, shrink=0.5)
     cbar.set_label(names[index])
     cbar.ax.tick_params(labelsize=11)
-    print(planet + "_movie/" + files[index])
-    try: plt.savefig(planet + "_movie/" + files[index])
+    if years:
+        plt.title(str(year))
+        print("Earth_movie_years_r_" + rc_file + "/" + files[index])
+    else:
+        print(planet + "_movie/" + files[index])
+    try: 
+        if years:
+            plt.savefig("Earth_movie_years_r_" + rc_file + "/" + files[index])
+        else:
+            plt.savefig(planet + "_movie/" + files[index])
     except:
-        os.mkdir(planet + "_movie/")
-        plt.savefig(planet + "_movie/" + files[index])
+        if years:
+            os.mkdir("Earth_movie_years_r_" + rc_file + "/")
+            plt.savefig("Earth_movie_years_r_" + rc_file + "/" + files[index])
+        else:
+            os.mkdir(planet + "_movie/")
+            plt.savefig(planet + "_movie/" + files[index])
 
-def mollweideproj_1_magnitude(planet, rc, frame, phi, theta, magnitude, index):
+
+def mollweideproj_1_magnitude(planet, rc, frame, phi, theta, magnitude, index, year=None, years=False):
     import cartopy.crs as ccrs
+
+    rc_file = '%.3f'%rc
+    rc_file = rc_file.replace(".","_")
     
     Phi, Theta = np.meshgrid(360 * (1 - phi / 2 / np.pi), - 180 * theta / np.pi + 90)
     names = [r'Potential (Gauss · 1 $R_P$) at $r =$' + '%.3f'%rc + '$R_P$', 
@@ -164,13 +183,27 @@ def mollweideproj_1_magnitude(planet, rc, frame, phi, theta, magnitude, index):
     else:
         realmap = cmap1
         vmin, vmax = -limit, limit
-    plt.contourf(-Phi, Theta, magnitude[0, :, :], cmap=realmap, levels=35, vmin=vmin, vmax=vmax, transform=ccrs.PlateCarree())
+    plt.contourf(-Phi, Theta, magnitude, cmap=realmap, levels=35, vmin=vmin, vmax=vmax, transform=ccrs.PlateCarree())
     if planet=="Earth": ax.coastlines()
     cbar = plt.colorbar(orientation="horizontal", pad=.1, shrink=0.5)
     cbar.set_label(names[index])
     cbar.ax.tick_params(labelsize=11)
-    print(planet + "_movie/" + files[index])
-    try: plt.savefig(planet + "_movie/" + files[index])
+    if years:
+        plt.title(str(year))
+        print("Earth_movie_years_r_" + rc_file + "/" + files[index])
+    else:
+        print(planet + "_movie/" + files[index])
+    try: 
+        if years:
+            plt.savefig("Earth_movie_years_r_" + rc_file + "/" + files[index])
+        else:
+            plt.savefig(planet + "_movie/" + files[index])
     except:
-        os.mkdir(planet + "_movie/")
-        plt.savefig(planet + "_movie/" + files[index])
+        if years:
+            os.mkdir("Earth_movie_years_r_" + rc_file + "/")
+            plt.savefig("Earth_movie_years_r_" + rc_file + "/" + files[index])
+        else:
+            os.mkdir(planet + "_movie/")
+            plt.savefig(planet + "_movie/" + files[index])
+
+        

@@ -8,7 +8,7 @@ Nphi = 2*Ntheta  # Longitudial points (East-West direction)
 Nr = 1           # Radial points which convert to movie frames
 
 a = 1  # Should be 6371.2/72492 (Earth/Jupiter), but renormalize to 1, since r/a is what matters. It is used only for the calculation of some magnitudes
-rc = 0.55
+rc = 0.65
 
 # Definition of the spherical grid matrices
 #phi    = np.linspace(1 * np.pi / Nphi, 2 * np.pi *(1 + 1/Nphi), num=Nphi)
@@ -79,7 +79,8 @@ plt.rcParams['lines.linewidth'] = 1
 plt.rcParams["figure.autolayout"] = True
 
 for frame, year in enumerate(years):
-
+    year = int(year)
+    
     # This part defines the K and S matrices with dimension NPOL x NPOL, depending on the 
     # planet and the year
     g, h, G, H = reader.reader(planet, year, NPOL, NPOL_EXT)
@@ -92,31 +93,31 @@ for frame, year in enumerate(years):
     P, derivP = schmidt.Schmidtcoefficients(NPOL, Ntheta, theta, K, S)
 
     # Initialize all components of the magnetic field (spherical, cartesian and modulus)
-    potential, potential_EXT = np.zeros([Nr, Ntheta, Nphi]), np.zeros([Nr, Ntheta, Nphi])
-    fieldr, fieldr_EXT = np.zeros([Nr, Ntheta, Nphi]), np.zeros([Nr, Ntheta, Nphi])
-    fieldtheta, fieldtheta_EXT = np.zeros([Nr, Ntheta, Nphi]), np.zeros([Nr, Ntheta, Nphi])
-    fieldphi, fieldphi_EXT = np.zeros([Nr, Ntheta, Nphi]), np.zeros([Nr, Ntheta, Nphi])
-    fieldmod = np.zeros([Nr, Ntheta, Nphi])
-    fieldx = np.zeros([Nr, Ntheta, Nphi])
-    fieldy = np.zeros([Nr, Ntheta, Nphi])
-    fieldz = np.zeros([Nr, Ntheta, Nphi])
+    potential, potential_EXT = np.zeros([Ntheta, Nphi]), np.zeros([Ntheta, Nphi])
+    fieldr, fieldr_EXT = np.zeros([Ntheta, Nphi]), np.zeros([Ntheta, Nphi])
+    fieldtheta, fieldtheta_EXT = np.zeros([Ntheta, Nphi]), np.zeros([Ntheta, Nphi])
+    fieldphi, fieldphi_EXT = np.zeros([Ntheta, Nphi]), np.zeros([Ntheta, Nphi])
+    fieldmod = np.zeros([Ntheta, Nphi])
+    fieldx = np.zeros([Ntheta, Nphi])
+    fieldy = np.zeros([Ntheta, Nphi])
+    fieldz = np.zeros([Ntheta, Nphi])
 
     # Loops for all r, theta and phi and obtaining all the corresponding potential and fields
     for j in range(0, Ntheta):
         for k in range(0, Nphi):
-            potential[:, j, k], fieldr[:, j, k], fieldtheta[:, j, k], fieldphi[:, j, k] = schmidt.potentialfunction(radius[:], j, phi[k], theta, NPOL, P, derivP, const, g, h)
+            potential[j, k], fieldr[j, k], fieldtheta[j, k], fieldphi[j, k] = schmidt.potentialfunction(radius[:], j, phi[k], theta, NPOL, P, derivP, const, g, h)
             if NPOL_EXT != 0:
-                potential_EXT[:, j, k], fieldr_EXT[:, j, k], fieldtheta_EXT[:, j, k], fieldphi_EXT[:, j, k] = schmidt.potentialfunctionexternal(radius[:], j, phi[k], theta, NPOL_EXT, P, derivP, const, G, H)
-                potential[:, j, k] += potential_EXT[:, j, k]
-                fieldr[:, j, k] += fieldr_EXT[:, j, k]
-                fieldtheta[:, j, k] += fieldtheta_EXT[:, j, k]
-                fieldphi[:, j, k] += fieldphi_EXT[:, j, k]
-            fieldmod[:, j, k] = np.sqrt(fieldr[:, j, k] ** 2 + fieldtheta[:, j, k] ** 2 + fieldphi[:, j, k] ** 2)
-            fieldx[:, j, k] = np.cos(phi[k]) * np.sin(theta[j]) * fieldr[:, j, k] + np.cos(phi[k]) * np.cos(theta[j]) * \
-                                fieldtheta[:, j, k] - np.sin(phi[j]) * fieldphi[:, j, k]
-            fieldy[:, j, k] = np.sin(phi[k]) * np.sin(theta[j]) * fieldr[:, j, k] + np.sin(phi[k]) * np.cos(theta[j]) * \
-                                fieldtheta[:, j, k] + np.cos(phi[j]) * fieldphi[:, j, k]
-            fieldz[:, j, k] = np.cos(theta[j]) * fieldr[:, j, k] - np.sin(theta[j]) * fieldtheta[:, j, k]
+                potential_EXT[j, k], fieldr_EXT[j, k], fieldtheta_EXT[j, k], fieldphi_EXT[j, k] = schmidt.potentialfunctionexternal(radius[:], j, phi[k], theta, NPOL_EXT, P, derivP, const, G, H)
+                potential[j, k] += potential_EXT[j, k]
+                fieldr[j, k] += fieldr_EXT[j, k]
+                fieldtheta[j, k] += fieldtheta_EXT[j, k]
+                fieldphi[j, k] += fieldphi_EXT[j, k]
+            fieldmod[j, k] = np.sqrt(fieldr[j, k] ** 2 + fieldtheta[j, k] ** 2 + fieldphi[j, k] ** 2)
+            fieldx[j, k] = np.cos(phi[k]) * np.sin(theta[j]) * fieldr[j, k] + np.cos(phi[k]) * np.cos(theta[j]) * \
+                                fieldtheta[j, k] - np.sin(phi[j]) * fieldphi[j, k]
+            fieldy[j, k] = np.sin(phi[k]) * np.sin(theta[j]) * fieldr[j, k] + np.sin(phi[k]) * np.cos(theta[j]) * \
+                                fieldtheta[j, k] + np.cos(phi[j]) * fieldphi[j, k]
+            fieldz[j, k] = np.cos(theta[j]) * fieldr[j, k] - np.sin(theta[j]) * fieldtheta[j, k]
 
     all_magnitudes = [potential, fieldr, fieldtheta, fieldphi, fieldmod]
     
@@ -124,15 +125,15 @@ for frame, year in enumerate(years):
     print("Saving plots for " + planet + " r = " + str(rc))
     
     # Saves plane projection of the magnitudes
-    if planeproj: saveplots.planeproj_1_magnitude(planet, rc, frame, phi, theta, all_magnitudes[index], index, ccrs_library)
+    if planeproj: saveplots.planeproj_1_magnitude(planet, rc, frame, phi, theta, all_magnitudes[index], index, ccrs_library, year=year, years=True)
 
     # Saves Mollweide projection of the magnitudes
-    if mollweideproj: saveplots.mollweideproj_1_magnitude(planet, rc, frame, phi, theta, all_magnitudes[index], index)
+    if mollweideproj: saveplots.mollweideproj_1_magnitude(planet, rc, frame, phi, theta, all_magnitudes[index], index, year=year, years=True)
 
     # Obtain the Lowes spectrum for a the given plotted radius and plot it
     if lowes:
         Rn = lowes_spec.lowes_spec(NPOL, radius, g, h)
-        lowes_spec.plot_lowes(planet, rc, frame, Rn, movie=True)
+        lowes_spec.plot_lowes(planet, rc, frame, Rn, movie=True, year=year, years=True)
     
     print("---------------------------------------------")
 
