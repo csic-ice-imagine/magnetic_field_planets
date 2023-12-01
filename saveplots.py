@@ -53,7 +53,7 @@ def planeproj(planet, rc, rc_file, phi, theta, potential, fieldr, fieldtheta, fi
         cbar = plt.colorbar(orientation="horizontal", pad=.15, shrink=0.5)
         cbar.set_label(names[index])
         cbar.ax.tick_params(labelsize=11)
-        print("Saving " + planet + "/" + files[index])
+        print(planet + "/" + files[index])
         try: plt.savefig(planet + "/" + files[index])
         except:
             os.mkdir(planet)
@@ -67,11 +67,11 @@ def mollweideproj(planet, rc, rc_file, phi, theta, potential, fieldr, fieldtheta
              '$B_θ$ (Gauss) at $r =$' + str(rc) + '$R_P$', 
              '$B_{\phi}$ (Gauss) at $r =$' + str(rc) + '$R_P$',
              '$|B|$ (Gauss) at $r =$' + str(rc) + '$R_P$']
-    files = [planet + '_r_' + rc_file + '_potential_Mollweide', 
-             planet + '_r_' + rc_file + '_fieldr_Mollweide', 
-             planet + '_r_' + rc_file + '_fieldtheta_Mollweide', 
-             planet + '_r_' + rc_file + '_fieldphi_Mollweide', 
-             planet + '_r_' + rc_file + '_fieldmod_Mollweide']
+    files = [planet + '_r_' + rc_file + '_potential_Mollweide.png', 
+             planet + '_r_' + rc_file + '_fieldr_Mollweide.png', 
+             planet + '_r_' + rc_file + '_fieldtheta_Mollweide.png', 
+             planet + '_r_' + rc_file + '_fieldphi_Mollweide.png', 
+             planet + '_r_' + rc_file + '_fieldmod_Mollweide.png']
     magnitudes = [potential, fieldr, fieldtheta, fieldphi, fieldmod]
     for index, magnitude in enumerate(magnitudes):
         plt.clf()
@@ -88,35 +88,26 @@ def mollweideproj(planet, rc, rc_file, phi, theta, potential, fieldr, fieldtheta
         cbar = plt.colorbar(orientation="horizontal", pad=.1, shrink=0.5)
         cbar.set_label(names[index])
         cbar.ax.tick_params(labelsize=11)
-        print("Saving " + planet + "/" + files[index])
+        print(planet + "/" + files[index])
         try: plt.savefig(planet + "/" + files[index])
         except:
             os.mkdir(planet)
             plt.savefig(planet + "/" + files[index])
 
 
-def planeproj_1_magitude(planet, rc, rc_file, phi, theta, magnitude, magnitude_name, ccrs_library):
-    
-    if magnitude_name == "potential": index = 0
-    elif magnitude_name == "fieldr": index = 1
-    elif magnitude_name == "fieldtheta": index = 2
-    elif magnitude_name == "fieldphi": index = 3
-    elif magnitude_name == "fieldmod": index = 4
-    else:
-        print("There is no option for " + planet + " (maybe you had a typo)")
-        raise SystemExit
+def planeproj_1_magnitude(planet, rc, frame, phi, theta, magnitude, index, ccrs_library):
 
     Phi, Theta = np.meshgrid(360 * (1 - phi / 2 / np.pi), - 180 * theta / np.pi + 90)
-    names = [r'Potential (Gauss · 1 $R_P$) at $r =$' + str(rc) + '$R_P$', 
-             '$B_r$ (Gauss) at $r =$' + str(rc) + '$R_P$',
-             '$B_θ$ (Gauss) at $r =$' + str(rc) + '$R_P$', 
-             '$B_{\phi}$ (Gauss) at $r =$' + str(rc) + '$R_P$',
-             '$|B|$ (Gauss) at $r =$' + str(rc) + '$R_P$']
-    files = [planet + '_r_' + rc_file + '_potential.png', 
-             planet + '_r_' + rc_file + '_fieldr.png', 
-             planet + '_r_' + rc_file + '_fieldtheta.png', 
-             planet + '_r_' + rc_file + '_fieldphi.png',
-             planet + '_r_' + rc_file + '_fieldmod.png']
+    names = [r'Potential (Gauss · 1 $R_P$) at $r =$' + '%.3f'%rc + '$R_P$', 
+             '$B_r$ (Gauss) at $r =$' + '%.3f'%rc + '$R_P$',
+             '$B_θ$ (Gauss) at $r =$' + '%.3f'%rc + '$R_P$', 
+             '$B_{\phi}$ (Gauss) at $r =$' + '%.3f'%rc + '$R_P$',
+             '$|B|$ (Gauss) at $r =$' + '%.3f'%rc + '$R_P$']
+    files = [planet + '_potential_r_' + '%03d'%frame + '.png', 
+             planet + '_fieldr_r_' + '%03d'%frame + '.png', 
+             planet + '_fieldtheta_r_' + '%03d'%frame + '.png', 
+             planet + '_fieldphi_r_' + '%03d'%frame + '.png',
+             planet + '_fieldmod_r_' + '%03d'%frame + '.png']
     
     plt.clf()
     if ccrs_library:
@@ -143,35 +134,26 @@ def planeproj_1_magitude(planet, rc, rc_file, phi, theta, magnitude, magnitude_n
     cbar = plt.colorbar(orientation="horizontal", pad=.15, shrink=0.5)
     cbar.set_label(names[index])
     cbar.ax.tick_params(labelsize=11)
-    print("Saving " + planet + "_movie/" + files[index])
+    print(planet + "_movie/" + files[index])
     try: plt.savefig(planet + "_movie/" + files[index])
     except:
-        os.mkdir(planet)
+        os.mkdir(planet + "_movie/")
         plt.savefig(planet + "_movie/" + files[index])
 
-def mollweideproj_1_magitude(planet, rc, rc_file, phi, theta, magnitude, magnitude_name):
+def mollweideproj_1_magnitude(planet, rc, frame, phi, theta, magnitude, index):
     import cartopy.crs as ccrs
-
-    if magnitude_name == "potential": index = 0
-    elif magnitude_name == "fieldr": index = 1
-    elif magnitude_name == "fieldtheta": index = 2
-    elif magnitude_name == "fieldphi": index = 3
-    elif magnitude_name == "fieldmod": index = 4
-    else:
-        print("There is no option for " + planet + " (maybe you had a typo)")
-        raise SystemExit
     
     Phi, Theta = np.meshgrid(360 * (1 - phi / 2 / np.pi), - 180 * theta / np.pi + 90)
-    names = [r'Potential (Gauss · 1 $R_P$) at $r =$' + str(rc) + '$R_P$', 
-             '$B_r$ (Gauss) at $r =$' + str(rc) + '$R_P$',
-             '$B_θ$ (Gauss) at $r =$' + str(rc) + '$R_P$', 
-             '$B_{\phi}$ (Gauss) at $r =$' + str(rc) + '$R_P$',
-             '$|B|$ (Gauss) at $r =$' + str(rc) + '$R_P$']
-    files = [planet + '_r_' + rc_file + '_potential_Mollweide', 
-             planet + '_r_' + rc_file + '_fieldr_Mollweide', 
-             planet + '_r_' + rc_file + '_fieldtheta_Mollweide', 
-             planet + '_r_' + rc_file + '_fieldphi_Mollweide', 
-             planet + '_r_' + rc_file + '_fieldmod_Mollweide']
+    names = [r'Potential (Gauss · 1 $R_P$) at $r =$' + '%.3f'%rc + '$R_P$', 
+             '$B_r$ (Gauss) at $r =$' + '%.3f'%rc + '$R_P$',
+             '$B_θ$ (Gauss) at $r =$' + '%.3f'%rc + '$R_P$', 
+             '$B_{\phi}$ (Gauss) at $r =$' + '%.3f'%rc + '$R_P$',
+             '$|B|$ (Gauss) at $r =$' + '%.3f'%rc + '$R_P$']
+    files = [planet + '_potential_Mollweide_r_' + '%03d'%frame + '.png', 
+             planet + '_fieldr_Mollweide_r_' + '%03d'%frame + '.png', 
+             planet + '_fieldtheta_Mollweide_r_' + '%03d'%frame + '.png', 
+             planet + '_fieldphi_Mollweide_r_' + '%03d'%frame + '.png', 
+             planet + '_fieldmod_Mollweide_r_' + '%03d'%frame + '.png']
     
     plt.clf()
     ax = plt.axes(projection=ccrs.Mollweide())
@@ -187,8 +169,8 @@ def mollweideproj_1_magitude(planet, rc, rc_file, phi, theta, magnitude, magnitu
     cbar = plt.colorbar(orientation="horizontal", pad=.1, shrink=0.5)
     cbar.set_label(names[index])
     cbar.ax.tick_params(labelsize=11)
-    print("Saving " + planet + "_movie/" + files[index])
+    print(planet + "_movie/" + files[index])
     try: plt.savefig(planet + "_movie/" + files[index])
     except:
-        os.mkdir(planet)
+        os.mkdir(planet + "_movie/")
         plt.savefig(planet + "_movie/" + files[index])

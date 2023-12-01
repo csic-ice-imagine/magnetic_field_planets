@@ -16,11 +16,15 @@ def plot_lowes(planet, rc, rc_file, Rn, movie=False):
     plt.clf()
     plt.grid(ls='--', alpha=.5)
     plt.scatter(np.arange(1, len(Rn)), Rn[1:])
-    plt.xlabel('Harmonic degree (n) at $r =$' + str(rc) + '$R_P$')
+    plt.xlabel('Harmonic degree (n) at $r =$' + '%.3f'%rc + '$R_P$')
     plt.ylabel(r'R$_n$ (nT)$^2$')
     plt.yscale('log')
-    if movie: plt.savefig(planet + "_movie/" + planet + '_r_' + rc_file + '_lowes_spectrum.png')
-    else: plt.savefig(planet + "/" + planet + '_r_' + rc_file + '_lowes_spectrum.png')
+    if movie: 
+        plt.savefig(planet + "_movie/" + planet + '_lowes_spectrum_r_' + '%03d'%rc_file + '.png')
+        print(planet + "_movie/" + planet + '_lowes_spectrum_r_' + '%03d'%rc_file + '.png')
+    else: 
+        plt.savefig(planet + "/" + planet + '_lowes_spectrum_r_' + rc_file + '.png')
+        print(planet + "/" + planet + '_lowes_spectrum_r_' + rc_file + '.png')
 
 def plot_multiple_lowes(planet, lowes_radii, Rn):
     plt.clf()
@@ -33,3 +37,4 @@ def plot_multiple_lowes(planet, lowes_radii, Rn):
     plt.legend(loc='best')
     plt.yscale('log')
     plt.savefig(planet + "/" + planet + '_lowes_spectrum.png')
+    print(planet + "/" + planet + '_lowes_spectrum.png')

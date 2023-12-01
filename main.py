@@ -37,7 +37,7 @@ multiple_lowes_r, lowes_radii = True, np.array([1.45,1.30,1.15,1.00,0.85,0.70,0.
 filecvs, filevtu = False, False
 
 
-rc_file = str(rc)
+rc_file = '%.2f'%rc
 rc_file = rc_file.replace(".","_") # String used for naming the output files
 
 # Definition of the spherical grid matrices
@@ -129,6 +129,9 @@ plt.rcParams['font.size'] = 16
 plt.rcParams['lines.linewidth'] = 1
 plt.rcParams["figure.autolayout"] = True
 
+print("---------------------------------------------")
+print("Saving plots for " + planet + " r = " + str(rc))
+
 # Saves plane projection of the magnitudes
 if planeproj: saveplots.planeproj(planet, rc, rc_file, phi, theta, potential, fieldr, fieldtheta, fieldphi, fieldmod, ccrs_library)
 
@@ -148,3 +151,5 @@ if multiple_lowes_r:
     for r in range(0,len(lowes_radii)):
         Rn[r,:] = lowes_spec.lowes_spec(NPOL, lowes_radii[r], g, h)
     lowes_spec.plot_multiple_lowes(planet, lowes_radii, Rn)
+
+print("---------------------------------------------")
