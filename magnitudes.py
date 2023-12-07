@@ -1,5 +1,6 @@
 # magnitudes.py calculates and plots other interesting magnitudes, mainly curl, curvature and divergence. Others could be added.
 
+from statistics import mean
 import numpy as np
 import os
 import matplotlib.pyplot as plt
@@ -8,7 +9,7 @@ from matplotlib import cm
 cmap1 = cm.get_cmap('RdBu_r', 255)
 cmap2 = cm.get_cmap('inferno', 255)
 
-def printMagnitudes(planet, Ntheta, Nphi, radius, rc, rc_file, a, dr, phi, theta, fieldr, fieldtheta, fieldphi, fieldmod):
+def printMagnitudes(planet, Ntheta, Nphi, radius, rc, rc_file, a, dr, phi, theta, fieldr, fieldtheta, fieldphi, fieldmod, Mollweide=False):
 
     fieldmod = np.sqrt(fieldr ** 2 + fieldtheta ** 2 + fieldphi ** 2)
     directionr = fieldr / fieldmod
@@ -128,6 +129,11 @@ def printMagnitudes(planet, Ntheta, Nphi, radius, rc, rc_file, a, dr, phi, theta
     div_L2 = np.sum(volume*divergence**2*divd2)
     curl_L2 = np.sum(volume*curlmod**2*divd2)
     print("B**2, (Div*h)**2 and (Curl*h)**2, integrated:",field_L2,div_L2,curl_L2,np.sum(volume),"dr,Nth,Np:",dr,Ntheta,Nphi)
+
+    for j in range(1, Ntheta - 1):
+        meancurvature += curvaturemod[j, :] * np.sin(theta[j])
+    meancurvature = np.sum(meancurvature)/np.sum(theta)
+    print(np.mean(curvaturemod), meancurvature)
 
     names = [r'$\nabla \cdot B h$ (Gauss) at $r =$' + str(rc) + '$R_P$', 
              r'$|\nabla x B|h$ (Gauss) at $r =$' + str(rc) + '$R_P$', 

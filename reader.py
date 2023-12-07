@@ -100,8 +100,5 @@ def reader(planet, year, NPOL, NPOL_EXT):
                 g[int(file_list[1]), int(file_list[2])] = float(file_list[4])
             else:
                 h[int(file_list[1]), int(file_list[2])] = float(file_list[4])
-    else:
-        print("There is no option for " + planet + " (maybe you had a typo)")
-        raise SystemExit
     
     return g,h,G,H

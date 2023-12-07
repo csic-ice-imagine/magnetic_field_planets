@@ -17,7 +17,7 @@ planet, year = "Jupiter_2021", 2020
 # to choose a year, which can only be: 1900, 1905, 1910, ..., to 2020.
  
 # Switches to save projections in plane and Mollweide projections. Coastlines are included in Earth plots.
-planeproj, mollweideproj = True, True
+planeproj, mollweideproj = False, False
 # If you have successfully installed the ccrs library you can put the Earth coastline in the Earth plane projections also, using the boolean ccrs_library
 ccrs_library = True
 
@@ -30,7 +30,7 @@ plot_magnitudes = True
 # Switch to save the Lowes spectrum for the given radius
 lowes = True
 # Switch to save the Lowes spectrum for a number of radii
-multiple_lowes_r, lowes_radii = True, np.array([1.45,1.30,1.15,1.00,0.85,0.70,0.55])
+multiple_lowes_r, lowes_radii = False, np.array([1.45,1.30,1.15,1.00,0.85,0.70,0.55])
 
 # Saves a csv file with potencial, Br, Btheta, Bphi and Bmod. Use with only 1 Nr, for spherical plots
 # Saves a vtu file (Paraview for 3D visualization) with Bx, By, Bz. Use more than 1 Nr, as cells are used
@@ -77,17 +77,18 @@ elif planet=="Ganymede":
     NPOL,NPOL_EXT=3,0
     const=1e5
 else:
-    NPOL,NPOL_EXT=0,0
+    print("There is no option for " + planet + " (maybe you had a typo)")
+    raise SystemExit
 
-# This part defines the K and S matrices with dimension NPOL x NPOL, depending on the 
-# planet and the year
+# The following function reads the g's and h's constants and puts them in NPOL x NPOL matrices, 
+# depending on the planet and the year
 g, h, G, H = reader.reader(planet, year, NPOL, NPOL_EXT)
 
-# This part defines the K and S matrices with dimension NPOL x NPOL
+# This function defines the K and S matrices with dimension NPOL x NPOL
 K, S = schmidt.KandS(NPOL)
 
-# This part defines the Gaussian-normalized and
-# the Schmidt quasi-normalized associated Legendre polynomials
+# This function defines the Gaussian-normalized and the Schmidt quasi-normalized associated Legendre
+# polynomials for the given resolution
 P, derivP = schmidt.Schmidtcoefficients(NPOL, Ntheta, theta, K, S)
 
 # Initialize all components of the magnetic field (spherical, cartesian and modulus)

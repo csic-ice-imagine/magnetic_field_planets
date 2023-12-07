@@ -8,7 +8,7 @@ Nphi = 2*Ntheta  # Longitudial points (East-West direction)
 Nr = 1           # Radial points which convert to movie frames
 
 a = 1  # Should be 6371.2/72492 (Earth/Jupiter), but renormalize to 1, since r/a is what matters. It is used only for the calculation of some magnitudes
-rc = 0.65
+rc = 0.55
 
 # Definition of the spherical grid matrices
 #phi    = np.linspace(1 * np.pi / Nphi, 2 * np.pi *(1 + 1/Nphi), num=Nphi)
@@ -80,7 +80,7 @@ plt.rcParams["figure.autolayout"] = True
 
 for frame, year in enumerate(years):
     year = int(year)
-    
+
     # This part defines the K and S matrices with dimension NPOL x NPOL, depending on the 
     # planet and the year
     g, h, G, H = reader.reader(planet, year, NPOL, NPOL_EXT)
