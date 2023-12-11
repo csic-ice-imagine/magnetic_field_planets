@@ -130,9 +130,10 @@ def printMagnitudes(planet, Ntheta, Nphi, radius, rc, rc_file, a, dr, phi, theta
     curl_L2 = np.sum(volume*curlmod**2*divd2)
     print("B**2, (Div*h)**2 and (Curl*h)**2, integrated:",field_L2,div_L2,curl_L2,np.sum(volume),"dr,Nth,Np:",dr,Ntheta,Nphi)
 
+    meancurvature = np.zeros([Ntheta, Nphi])
     for j in range(1, Ntheta - 1):
-        meancurvature += curvaturemod[j, :] * np.sin(theta[j])
-    meancurvature = np.sum(meancurvature)/np.sum(theta)
+        meancurvature[j, :] = curvaturemod[j, :] * np.sin(theta[j])
+    meancurvature = np.sum(meancurvature)/Nphi/np.sum(np.sin(theta))
     print(np.mean(curvaturemod), meancurvature)
 
     names = [r'$\nabla \cdot B h$ (Gauss) at $r =$' + str(rc) + '$R_P$', 
@@ -166,7 +167,7 @@ def printMagnitudes(planet, Ntheta, Nphi, radius, rc, rc_file, a, dr, phi, theta
         plt.ylabel("Latitude")
         magnitude[np.where(magnitude > maxf[index])] = maxf[index]
         magnitude[np.where(magnitude < minf[index])] = minf[index]
-        if index == 1 or index == 2:
+        if index == 1 or index == 5:
             map = cmap2
         else:
             map = cmap1

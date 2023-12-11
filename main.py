@@ -28,7 +28,7 @@ ccrs_library = True
 plot_magnitudes = True
 
 # Switch to save the Lowes spectrum for the given radius
-lowes = True
+lowes = False
 # Switch to save the Lowes spectrum for a number of radii
 multiple_lowes_r, lowes_radii = False, np.array([1.45,1.30,1.15,1.00,0.85,0.70,0.55])
 
