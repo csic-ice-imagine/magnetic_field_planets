@@ -125,10 +125,11 @@ for frame, radii in enumerate(rc):
     print("Saving plots for " + planet + " r = " + str(radii))
     
     # Saves plane projection of the magnitudes
-    if planeproj: saveplots.planeproj_1_magnitude(planet, radii, frame, phi, theta, all_magnitudes[index], index, ccrs_library)
+    
+    if planeproj: saveplots.plot_1(planet, radii, frame, phi, theta, all_magnitudes[index], index, ccrs_library, plane=True, Mollweide=False)
 
     # Saves Mollweide projection of the magnitudes
-    if mollweideproj: saveplots.mollweideproj_1_magnitude(planet, radii, frame, phi, theta, all_magnitudes[index], index)
+    if mollweideproj: saveplots.plot_1(planet, radii, frame, phi, theta, all_magnitudes[index], index, ccrs_library, plane=False, Mollweide=True)
 
     # Obtain the Lowes spectrum for a the given plotted radius and plot it
     if lowes:

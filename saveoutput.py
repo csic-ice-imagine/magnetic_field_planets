@@ -1,10 +1,11 @@
-# saveoutput.py saves cvs giles or vtu files for more advanced 3D visualizations, such as paraview. This should be
-# checked for errors. 
+# ---------------------------------------------------------------------------
+# saveoutput.py saves cvs giles or vtu files for more advanced 3D 
+# visualizations, such as paraview. This should be checked for mistakes.
+# --------------------------------------------------------------------------- 
 
 import numpy as np
 import csv
 
-# 
 def savecsv(Nr, Ntheta, Nphi, radius, phi, theta, potential, fieldr, fieldtheta, fieldphi, fieldmod, planet, year):
     if planet == "Earth":
         names = ['Earthfieldpot_' + str(year) + '.csv', 'Earthfieldr_' + str(year) + '.csv',
@@ -35,7 +36,19 @@ def savecsv(Nr, Ntheta, Nphi, radius, phi, theta, potential, fieldr, fieldtheta,
                                   printvalues[i, j, k]]
                         writer.writerow(values)
 
-def savevtu(Nr, Ntheta, Nphi, radius, phi, theta, fieldx, fieldy, fieldz, planet, year):
+# ---------------------------------------------------------------------------
+def savevtu(Nr, 
+            Ntheta, 
+            Nphi, 
+            radius, 
+            phi, 
+            theta, 
+            fieldx, 
+            fieldy, 
+            fieldz, 
+            planet, 
+            year):
+    
     cellx = np.zeros([Nr, Ntheta, Nphi])
     celly = np.zeros([Nr, Ntheta, Nphi])
     cellz = np.zeros([Nr, Ntheta, Nphi])
@@ -123,4 +136,6 @@ def savevtu(Nr, Ntheta, Nphi, radius, phi, theta, fieldx, fieldy, fieldz, planet
         file.write('    </Piece>\n')
         file.write('  </UnstructuredGrid>\n')
         file.write('</VTKFile>\n')
+
+# ---------------------------------------------------------------------------
 

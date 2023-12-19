@@ -1,4 +1,8 @@
-# magnitudes.py calculates and plots other interesting magnitudes, mainly curl, curvature and divergence. Others could be added.
+#----------------------------------------------------------------------------
+# magnitudes.py calculates and plots all components and madulus of the curl, 
+# curvature and divergence. Others can be added. Both divergence and curl are 
+# calculated to evaluate if they are close to 0 or not, as they should be.
+#----------------------------------------------------------------------------
 
 from statistics import mean
 import numpy as np
@@ -8,14 +12,29 @@ from matplotlib import cm
 
 cmap1 = cm.get_cmap('RdBu_r', 255)
 cmap2 = cm.get_cmap('inferno', 255)
+#cmap2 = cm.get_cmap('YlGn', 255)
 
-def printMagnitudes(planet, Ntheta, Nphi, radius, rc, rc_file, a, dr, phi, theta, fieldr, fieldtheta, fieldphi, fieldmod, Mollweide=False):
+def printMagnitudes(planet, 
+                    Ntheta, 
+                    Nphi, 
+                    radius, 
+                    rc, 
+                    rc_file, 
+                    dr, 
+                    phi, 
+                    theta, 
+                    fieldr,
+                    fieldtheta, 
+                    fieldphi, 
+                    fieldmod, 
+                    plane=True, 
+                    Mollweide=False):
 
     fieldmod = np.sqrt(fieldr ** 2 + fieldtheta ** 2 + fieldphi ** 2)
     directionr = fieldr / fieldmod
     directionphi = fieldphi / fieldmod
     directiontheta = fieldtheta / fieldmod
-
+#----------------------------------------------------------------------------
     # Initializes all possible derivatives
     derivrfieldr, derivrdirectionr = np.zeros([Ntheta, Nphi]), np.zeros([Ntheta, Nphi])
     derivrfieldtheta, derivrdirectiontheta = np.zeros([Ntheta, Nphi]), np.zeros([Ntheta, Nphi])
@@ -32,7 +51,7 @@ def printMagnitudes(planet, Ntheta, Nphi, radius, rc, rc_file, a, dr, phi, theta
     divd2 = np.zeros([Ntheta,Nphi])
     divergence = np.zeros([Ntheta, Nphi])
     volume = np.zeros([Ntheta, Nphi])
-
+#----------------------------------------------------------------------------
     # Calculates all the field and direction derivatives.
     h_r = radius[2] - radius[1]
     h_theta = rc * (theta[2] - theta[1])
@@ -40,21 +59,7 @@ def printMagnitudes(planet, Ntheta, Nphi, radius, rc, rc_file, a, dr, phi, theta
         h_phi = rc * np.sin(theta[j]) * (phi[2] - phi[1])
         i = 1
 
-        derivphifieldr[j, 0] = .5 * (fieldr[i, j, 1] - fieldr[i, j, Nphi - 1]) / h_phi
-        derivphidirectionr[j, 0] = .5 * (directionr[i, j, 1] - directionr[i, j, Nphi - 1]) / h_phi
-        derivphifieldtheta[j, 0] = .5 * (fieldtheta[i, j, 1] - fieldtheta[i, j, Nphi - 1]) / h_phi
-        derivphidirectiontheta[j, 0] = .5 * (directiontheta[i, j, 1] - directiontheta[i, j, Nphi - 1]) / h_phi
-        derivphifieldphi[j, 0] = .5 * (fieldphi[i, j, 1] - fieldphi[i, j, Nphi - 1]) / h_phi
-        derivphidirectionphi[j, 0] = .5 * (directionphi[i, j, 1] - directionphi[i, j, Nphi - 1]) / h_phi
-
-        derivphifieldr[j, Nphi-1] = .5 * (fieldr[i, j, 0] - fieldr[i, j, Nphi - 2]) / h_phi
-        derivphidirectionr[j, Nphi-1] = .5 * (directionr[i, j, 0] - directionr[i, j, Nphi - 2]) / h_phi
-        derivphifieldtheta[j, Nphi-1] = .5 * (fieldtheta[i, j, 0] - fieldtheta[i, j, Nphi - 2]) / h_phi
-        derivphidirectiontheta[j, Nphi-1] = .5 * (directiontheta[i, j, 0] - directiontheta[i, j, Nphi - 2]) / h_phi
-        derivphifieldphi[j, Nphi-1] = .5 * (fieldphi[i, j, 0] - fieldphi[i, j, Nphi - 2]) / h_phi
-        derivphidirectionphi[j, Nphi-1] = .5 * (directionphi[i, j, 0] - directionphi[i, j, Nphi - 2]) / h_phi
-
-        for k in range(1, Nphi-1):
+        for k in range(0, Nphi):
             volume[j,k] = h_r*h_phi*h_theta
             divd2[j,k] = h_r**(2) + h_theta**(2) + h_phi**(2)
 
@@ -72,18 +77,34 @@ def printMagnitudes(planet, Ntheta, Nphi, radius, rc, rc_file, a, dr, phi, theta
             derivthetafieldphi[j, k] = .5 * (fieldphi[i, j + 1, k] - fieldphi[i, j - 1, k]) / h_theta
             derivthetadirectionphi[j, k] = .5 * (directionphi[i, j + 1, k] - directionphi[i, j - 1, k]) / h_theta
 
-            derivphifieldr[j, k] = .5 * (fieldr[i, j, k + 1] - fieldr[i, j, k - 1]) / h_phi
-            derivphidirectionr[j, k] = .5 * (directionr[i, j, k + 1] - directionr[i, j, k - 1]) / h_phi
-            derivphifieldtheta[j, k] = .5 * (fieldtheta[i, j, k + 1] - fieldtheta[i, j, k - 1]) / h_phi
-            derivphidirectiontheta[j, k] = .5 * (directiontheta[i, j, k + 1] - directiontheta[i, j, k - 1]) / h_phi
-            derivphifieldphi[j, k] = .5 * (fieldphi[i, j, k + 1] - fieldphi[i, j, k - 1]) / h_phi
-            derivphidirectionphi[j, k] = .5 * (directionphi[i, j, k + 1] - directionphi[i, j, k - 1]) / h_phi
+            if k == 0 or k == (Nphi-1):
+                derivphifieldr[j, 0] = .5 * (fieldr[i, j, 1] - fieldr[i, j, Nphi - 2]) / h_phi
+                derivphidirectionr[j, 0] = .5 * (directionr[i, j, 1] - directionr[i, j, Nphi - 2]) / h_phi
+                derivphifieldtheta[j, 0] = .5 * (fieldtheta[i, j, 1] - fieldtheta[i, j, Nphi - 2]) / h_phi
+                derivphidirectiontheta[j, 0] = .5 * (directiontheta[i, j, 1] - directiontheta[i, j, Nphi - 2]) / h_phi
+                derivphifieldphi[j, 0] = .5 * (fieldphi[i, j, 1] - fieldphi[i, j, Nphi - 2]) / h_phi
+                derivphidirectionphi[j, 0] = .5 * (directionphi[i, j, 1] - directionphi[i, j, Nphi - 2]) / h_phi
+
+                derivphifieldr[j, Nphi-1] = .5 * (fieldr[i, j, 1] - fieldr[i, j, Nphi - 2]) / h_phi
+                derivphidirectionr[j, Nphi-1] = .5 * (directionr[i, j, 1] - directionr[i, j, Nphi - 2]) / h_phi
+                derivphifieldtheta[j, Nphi-1] = .5 * (fieldtheta[i, j, 1] - fieldtheta[i, j, Nphi - 2]) / h_phi
+                derivphidirectiontheta[j, Nphi-1] = .5 * (directiontheta[i, j, 1] - directiontheta[i, j, Nphi - 2]) / h_phi
+                derivphifieldphi[j, Nphi-1] = .5 * (fieldphi[i, j, 1] - fieldphi[i, j, Nphi - 2]) / h_phi
+                derivphidirectionphi[j, Nphi-1] = .5 * (directionphi[i, j, 1] - directionphi[i, j, Nphi - 2]) / h_phi
+            else:
+                derivphifieldr[j, k] = .5 * (fieldr[i, j, k + 1] - fieldr[i, j, k - 1]) / h_phi
+                derivphidirectionr[j, k] = .5 * (directionr[i, j, k + 1] - directionr[i, j, k - 1]) / h_phi
+                derivphifieldtheta[j, k] = .5 * (fieldtheta[i, j, k + 1] - fieldtheta[i, j, k - 1]) / h_phi
+                derivphidirectiontheta[j, k] = .5 * (directiontheta[i, j, k + 1] - directiontheta[i, j, k - 1]) / h_phi
+                derivphifieldphi[j, k] = .5 * (fieldphi[i, j, k + 1] - fieldphi[i, j, k - 1]) / h_phi
+                derivphidirectionphi[j, k] = .5 * (directionphi[i, j, k + 1] - directionphi[i, j, k - 1]) / h_phi
             
             divergence[j, k] = 0.5/rc**2 * ( (rc + dr)**2*fieldr[i+1,j,1] - (rc - dr)**2*fieldr[i-1,j,1] ) / h_r + \
                         0.5/(rc*np.sin(theta[j])) * ( fieldtheta[i,j+1,k]*np.sin(theta[j+1]) - fieldtheta[i,j-1,k]*np.sin(theta[j-1]) )/ h_theta + \
                         derivphifieldphi[j, k] / rc / np.sin(theta[j])
-
-
+            
+    #print(derivphidirectiontheta)
+#----------------------------------------------------------------------------
     curlr = np.zeros([Ntheta, Nphi])
     curltheta = np.zeros([Ntheta, Nphi])
     curlphi = np.zeros([Ntheta, Nphi])
@@ -106,48 +127,56 @@ def printMagnitudes(planet, Ntheta, Nphi, radius, rc, rc_file, a, dr, phi, theta
         curlphi[j, :] = fieldtheta[i, j, :] / rc + derivrfieldtheta[j, :] - derivthetafieldr[j, :] / rc
 
         curvaturer[j, :] = directionr[i, j, :] * derivrdirectionr[j, :] + \
-                        directiontheta[i, j, :] * derivthetadirectionr[j, :] / a + \
-                        directionphi[i, j, :] * derivthetadirectionr[j, :] / a / np.sin(theta[j]) - \
+                        directiontheta[i, j, :] * derivthetadirectionr[j, :] / rc + \
+                        directionphi[i, j, :] * derivphidirectionr[j, :] / rc / np.sin(theta[j]) - \
                         (directiontheta[i, j, :] ** 2 + directionphi[i, j, :] ** 2) / rc
 
         curvaturetheta[j, :] = directionr[i, j, :] * derivrdirectiontheta[j, :] + \
-                            directiontheta[i, j, :] * derivthetadirectiontheta[j, :] / a + \
-                            directionphi[i, j, :] * derivthetadirectiontheta[j, :] / a / np.sin(theta[j]) + \
+                            directiontheta[i, j, :] * derivthetadirectiontheta[j, :] / rc + \
+                            directionphi[i, j, :] * derivphidirectiontheta[j, :] / rc / np.sin(theta[j]) + \
                             directiontheta[i, j, :] * directionr[i, j, :] / rc - \
                             directionphi[i, j, :] ** 2 / rc / np.tan(theta[j])
 
         curvaturephi[j, :] = directionr[i, j, :] * derivrdirectionphi[j, :] + \
-                            directiontheta[i, j, :] * derivthetadirectionphi[j, :] / a + \
-                            directionphi[i, j, :] * derivthetadirectionphi[j, :] / a / np.sin(theta[j]) + \
+                            directiontheta[i, j, :] * derivthetadirectionphi[j, :] / rc + \
+                            directionphi[i, j, :] * derivphidirectionphi[j, :] / rc / np.sin(theta[j]) + \
                             directionphi[i, j, :] * directionr[i, j, :] / rc + \
                             directionphi[i, j, :] * directiontheta[i, j, :] / rc / np.tan(theta[j])
-
+#----------------------------------------------------------------------------
     curlmod = np.sqrt(curlr ** 2 + curltheta ** 2 + curlphi ** 2)
     curvaturemod = np.sqrt(curvaturer ** 2 + curvaturetheta ** 2 + curvaturephi ** 2)
 
     field_L2 = np.sum(volume*fieldmod**2)
     div_L2 = np.sum(volume*divergence**2*divd2)
     curl_L2 = np.sum(volume*curlmod**2*divd2)
-    print("B**2, (Div*h)**2 and (Curl*h)**2, integrated:",field_L2,div_L2,curl_L2,np.sum(volume),"dr,Nth,Np:",dr,Ntheta,Nphi)
 
     meancurvature = np.zeros([Ntheta, Nphi])
     for j in range(1, Ntheta - 1):
         meancurvature[j, :] = curvaturemod[j, :] * np.sin(theta[j])
     meancurvature = np.sum(meancurvature)/Nphi/np.sum(np.sin(theta))
-    print(np.mean(curvaturemod), meancurvature)
-
+#----------------------------------------------------------------------------
+    print("------------------------------------------------------------")
+    print("Integrated magnitudes for dr =" + str(dr) + " and (Ntheta,Nphi)=(" \
+          + str(Ntheta) + "," + str(Nphi) + "):")
+    print("Volume:     ", np.sum(volume))
+    print("B^2:        ",field_L2)
+    print("(Div*h)^2:  ",div_L2)
+    print("(Curl*h)^2: ",curl_L2)
+    print("<kappa>:    ", meancurvature)
+    
+    Phi, Theta = np.meshgrid(360 * (1 - phi / 2 / np.pi), - 180 * theta / np.pi + 90)
     names = [r'$\nabla \cdot B h$ (Gauss) at $r =$' + str(rc) + '$R_P$', 
              r'$|\nabla x B|h$ (Gauss) at $r =$' + str(rc) + '$R_P$', 
              r'$(\nabla x B)_r h$ (Gauss) at $r =$' + str(rc) + '$R_P$', 
              r'$(\nabla x B)_\theta h$ (Gauss) at $r =$' + str(rc) + '$R_P$', 
              r'$(\nabla x B)_\phi h$ (Gauss) at $r =$' + str(rc) + '$R_P$', 
-             r'$| \kappa |$ at $r =$' + str(rc) + '$R_P$']
-    files = [planet+ '_r_' + rc_file +'_div.png',
-             planet+ '_r_' + rc_file+'_curl_mod.png',
-             planet+ '_r_' + rc_file+'_curlr.png',
-             planet+ '_r_' + rc_file+'_curlth.png',
-             planet+ '_r_' + rc_file+'_curlphi.png',
-             planet+ '_r_' + rc_file+'_k_mod.png']
+             r'$|\kappa|$ at $r =$' + str(rc) + '$R_P$']
+    files = [planet+ '_r_' + rc_file +'_div',
+             planet+ '_r_' + rc_file+'_curl_mod',
+             planet+ '_r_' + rc_file+'_curlr',
+             planet+ '_r_' + rc_file+'_curlth',
+             planet+ '_r_' + rc_file+'_curlphi',
+             planet+ '_r_' + rc_file+'_k_mod']
     magnitudes = [divergence*np.sqrt(divd2), 
                   curlmod*np.sqrt(divd2), 
                   curlr*np.sqrt(divd2), 
@@ -155,30 +184,61 @@ def printMagnitudes(planet, Ntheta, Nphi, radius, rc, rc_file, a, dr, phi, theta
                   curlphi*np.sqrt(divd2), 
                   curvaturemod]
 
-    maxf = [ 100.,10., 1., 1., 1.,100.,100., 100., 100., 100.]
-    minf = [-100.,0.,-1.,-1.,-1.,  0.,  0.,-100.,-100.,-100.]
-    Phi, Theta = np.meshgrid(360 * (1 - phi / 2 / np.pi), - 180 * theta / np.pi + 90)
-
-    for index, magnitude in enumerate(magnitudes):
-        plt.clf()
-        plt.xticks([0, 60, 120, 180, 240, 300, 360])
-        plt.yticks([-90, -60, -30, 0, 30, 60, 90])
-        plt.xlabel("Longitude")
-        plt.ylabel("Latitude")
-        magnitude[np.where(magnitude > maxf[index])] = maxf[index]
-        magnitude[np.where(magnitude < minf[index])] = minf[index]
-        if index == 1 or index == 5:
-            map = cmap2
-        else:
-            map = cmap1
-        plt.contourf(Phi, Theta, magnitude, cmap=map, levels=30)
-        plt.gca().invert_xaxis()
-
-        cbar = plt.colorbar(orientation="horizontal", pad=.1, shrink=0.5)
-        cbar.set_label(names[index])
-        cbar.ax.tick_params(labelsize=11)
-        print("Saving " + planet + "/" + files[index])
-        try: plt.savefig(planet + "/" + files[index])
-        except:
-            os.mkdir(planet)
-            plt.savefig(planet + "/" + files[index])
+    #maxf = [ 100.,10., 1., 1., 1.,100.,100., 100., 100., 100.]
+    #minf = [-100.,0.,-1.,-1.,-1.,  0.,  0.,-100.,-100.,-100.]
+    
+    if plane:
+        for index, magnitude in enumerate(magnitudes):
+            plt.clf()
+            ax = plt.axes()
+            ax.set_xticks([-180,-120,-60,0,60,120,180,240,300,360])
+            ax.set_yticks([-90,-60,-30,0,30,60,90])
+            ax.set_ylabel("Latitude")
+            ax.set_xlabel("Longitude")
+            #magnitude[np.where(magnitude > maxf[index])] = maxf[index]
+            #magnitude[np.where(magnitude < minf[index])] = minf[index]
+            limit = max(np.absolute(np.max(magnitude)), np.absolute(np.min(magnitude)))
+            if index == 1 or index == 5:
+                map = cmap2
+                vmin, vmax = np.min(magnitude), np.max(magnitude)
+            else:
+                map = cmap1
+                vmin, vmax = -limit, limit
+            if planet=="Earth":
+                plt.contourf(Phi, Theta, np.flip(magnitude,1), cmap=map, vmin=vmin, vmax=vmax, levels=30)
+            else:
+                plt.contourf(Phi, Theta, magnitude, cmap=map, vmin=vmin, vmax=vmax, levels=30)
+            plt.gca().invert_xaxis()
+            cbar = plt.colorbar(orientation="horizontal", pad=.15, shrink=0.5)
+            cbar.set_label(names[index])
+            cbar.ax.tick_params(labelsize=11)
+            print("Saving " + planet + "/" + files[index] + '.png')
+            try: plt.savefig(planet + "/" + files[index] + '.png')
+            except:
+                os.mkdir(planet)
+                plt.savefig(planet + "/" + files[index] + '.png')
+    if Mollweide:
+        import cartopy.crs as ccrs
+        for index, magnitude in enumerate(magnitudes):
+            plt.clf()
+            ax = plt.axes(projection=ccrs.Mollweide())
+            limit = max(np.absolute(np.max(magnitude)), np.absolute(np.min(magnitude)))
+            if index == 1 or index == 5:
+                map = cmap2
+                vmin, vmax = np.min(magnitude), np.max(magnitude)
+            else:
+                map = cmap1
+                vmin, vmax = -limit, limit
+            if planet=="Earth": 
+                plt.contourf(Phi - 180, Theta, magnitude, cmap=map, levels=35, vmin=vmin, vmax=vmax, transform=ccrs.PlateCarree())
+                ax.coastlines()
+            else:
+                plt.contourf(- Phi + 180, Theta, magnitude, cmap=map, levels=35, vmin=vmin, vmax=vmax, transform=ccrs.PlateCarree())
+            cbar = plt.colorbar(orientation="horizontal", pad=.1, shrink=0.5)
+            cbar.set_label(names[index])
+            cbar.ax.tick_params(labelsize=11)
+            print("Saving " + planet + "/" + files[index] + '_Mollweide.png')
+            try: plt.savefig(planet + "/" + files[index] + '_Mollweide.png')
+            except:
+                os.mkdir(planet)
+                plt.savefig(planet + "/" + files[index] + '_Mollweide.png')

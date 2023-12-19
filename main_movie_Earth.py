@@ -125,10 +125,10 @@ for frame, year in enumerate(years):
     print("Saving plots for " + planet + " r = " + str(rc))
     
     # Saves plane projection of the magnitudes
-    if planeproj: saveplots.planeproj_1_magnitude(planet, rc, frame, phi, theta, all_magnitudes[index], index, ccrs_library, year=year, years=True)
+    if planeproj: saveplots.plot_1(planet, rc, frame, phi, theta, all_magnitudes[index], index, ccrs_library, year=year, years=True, plane=True, Mollweide=False)
 
     # Saves Mollweide projection of the magnitudes
-    if mollweideproj: saveplots.mollweideproj_1_magnitude(planet, rc, frame, phi, theta, all_magnitudes[index], index, year=year, years=True)
+    if mollweideproj: saveplots.plot_1(planet, rc, frame, phi, theta, all_magnitudes[index], index, ccrs_library, year=year, years=True, plane=False, Mollweide=True)
 
     # Obtain the Lowes spectrum for a the given plotted radius and plot it
     if lowes:
