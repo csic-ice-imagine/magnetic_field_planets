@@ -1,8 +1,9 @@
-#----------------------------------------------------------------------------
+#------------------------------------------------------------------------------------
 # magnitudes.py calculates and plots all components and madulus of the curl, 
 # curvature and divergence. Others can be added. Both divergence and curl are 
-# calculated to evaluate if they are close to 0 or not, as they should be.
-#----------------------------------------------------------------------------
+# calculated to evaluate if they are close to 0 or not, as they should vanish 
+# as they are constructed from a potential (in a current-free zone).
+#------------------------------------------------------------------------------------
 
 from statistics import mean
 import numpy as np
@@ -14,27 +15,27 @@ cmap1 = cm.get_cmap('RdBu_r', 255)
 cmap2 = cm.get_cmap('inferno', 255)
 #cmap2 = cm.get_cmap('YlGn', 255)
 
-def printMagnitudes(planet, 
-                    Ntheta, 
-                    Nphi, 
-                    radius, 
-                    rc, 
-                    rc_file, 
-                    dr, 
-                    phi, 
-                    theta, 
-                    fieldr,
-                    fieldtheta, 
-                    fieldphi, 
-                    fieldmod, 
-                    plane=True, 
-                    Mollweide=False):
+def printMagnitudes(planet,            # String for the directory name
+                    Ntheta,            # Number of latitudinal points
+                    Nphi,              # Number of longitudinal points
+                    radius,            # Array of radii for the three shells
+                    rc,                # Value of the middle radii
+                    rc_file,           # String for file name (radius)
+                    dr,                # Radial distance between the shells
+                    phi,               # Longitudinal grid
+                    theta,             # Latitudinal grid
+                    fieldr,            # Radial magnetic field
+                    fieldtheta,        # Latitudinal magnetic field
+                    fieldphi,          # Longitudinal magnetic field
+                    fieldmod,          # Magnetic field modulus
+                    plane=True,        # Switch to ask for plane projection plots
+                    Mollweide=False):  # Switch to ask for Mollweide projections
 
     fieldmod = np.sqrt(fieldr ** 2 + fieldtheta ** 2 + fieldphi ** 2)
     directionr = fieldr / fieldmod
     directionphi = fieldphi / fieldmod
     directiontheta = fieldtheta / fieldmod
-#----------------------------------------------------------------------------
+#------------------------------------------------------------------------------------
     # Initializes all possible derivatives
     derivrfieldr, derivrdirectionr = np.zeros([Ntheta, Nphi]), np.zeros([Ntheta, Nphi])
     derivrfieldtheta, derivrdirectiontheta = np.zeros([Ntheta, Nphi]), np.zeros([Ntheta, Nphi])
@@ -51,7 +52,7 @@ def printMagnitudes(planet,
     divd2 = np.zeros([Ntheta,Nphi])
     divergence = np.zeros([Ntheta, Nphi])
     volume = np.zeros([Ntheta, Nphi])
-#----------------------------------------------------------------------------
+#------------------------------------------------------------------------------------
     # Calculates all the field and direction derivatives.
     h_r = radius[2] - radius[1]
     h_theta = rc * (theta[2] - theta[1])
@@ -103,8 +104,7 @@ def printMagnitudes(planet,
                         0.5/(rc*np.sin(theta[j])) * ( fieldtheta[i,j+1,k]*np.sin(theta[j+1]) - fieldtheta[i,j-1,k]*np.sin(theta[j-1]) )/ h_theta + \
                         derivphifieldphi[j, k] / rc / np.sin(theta[j])
             
-    #print(derivphidirectiontheta)
-#----------------------------------------------------------------------------
+#------------------------------------------------------------------------------------
     curlr = np.zeros([Ntheta, Nphi])
     curltheta = np.zeros([Ntheta, Nphi])
     curlphi = np.zeros([Ntheta, Nphi])
@@ -119,12 +119,20 @@ def printMagnitudes(planet,
 
         divergence[j, :] = 2. * fieldr[i, j, :] / rc + derivrfieldr[j, :] + \
                         fieldtheta[i, j, :] * np.cos(theta[j]) / rc / np.sin(theta[j]) + \
-                        derivthetafieldtheta[j, :] / rc + derivphifieldphi[j, :] / rc / np.sin(theta[j])
+                        derivthetafieldtheta[j, :] / rc + \
+                        derivphifieldphi[j, :] / rc / np.sin(theta[j])
 
         curlr[j, :] = fieldphi[i, j, :] / rc / np.tan(theta[j]) + \
-                    derivthetafieldphi[j, :] / rc - derivphifieldtheta[j, :] / rc / np.sin(theta[j])
-        curltheta[j, :] = derivphifieldr[j, :] / rc / np.sin(theta[j]) - fieldphi[i, j, :] / rc - derivrfieldphi[j, :]
-        curlphi[j, :] = fieldtheta[i, j, :] / rc + derivrfieldtheta[j, :] - derivthetafieldr[j, :] / rc
+                      derivthetafieldphi[j, :] / rc - \
+                      derivphifieldtheta[j, :] / rc / np.sin(theta[j])
+        
+        curltheta[j, :] = derivphifieldr[j, :] / rc / np.sin(theta[j]) - \
+                          fieldphi[i, j, :] / rc - \
+                          derivrfieldphi[j, :]
+        
+        curlphi[j, :] = fieldtheta[i, j, :] / rc + \
+                        derivrfieldtheta[j, :] - \
+                        derivthetafieldr[j, :] / rc
 
         curvaturer[j, :] = directionr[i, j, :] * derivrdirectionr[j, :] + \
                         directiontheta[i, j, :] * derivthetadirectionr[j, :] / rc + \
@@ -142,7 +150,7 @@ def printMagnitudes(planet,
                             directionphi[i, j, :] * derivphidirectionphi[j, :] / rc / np.sin(theta[j]) + \
                             directionphi[i, j, :] * directionr[i, j, :] / rc + \
                             directionphi[i, j, :] * directiontheta[i, j, :] / rc / np.tan(theta[j])
-#----------------------------------------------------------------------------
+#------------------------------------------------------------------------------------
     curlmod = np.sqrt(curlr ** 2 + curltheta ** 2 + curlphi ** 2)
     curvaturemod = np.sqrt(curvaturer ** 2 + curvaturetheta ** 2 + curvaturephi ** 2)
 
@@ -154,7 +162,7 @@ def printMagnitudes(planet,
     for j in range(1, Ntheta - 1):
         meancurvature[j, :] = curvaturemod[j, :] * np.sin(theta[j])
     meancurvature = np.sum(meancurvature)/Nphi/np.sum(np.sin(theta))
-#----------------------------------------------------------------------------
+#------------------------------------------------------------------------------------
     print("------------------------------------------------------------")
     print("Integrated magnitudes for dr =" + str(dr) + " and (Ntheta,Nphi)=(" \
           + str(Ntheta) + "," + str(Nphi) + "):")
@@ -164,7 +172,8 @@ def printMagnitudes(planet,
     print("(Curl*h)^2: ",curl_L2)
     print("<kappa>:    ", meancurvature)
     
-    Phi, Theta = np.meshgrid(360 * (1 - phi / 2 / np.pi), - 180 * theta / np.pi + 90)
+    Phi, Theta = np.meshgrid(360 * (1 - phi / 2 / np.pi), 
+                             - 180 * theta / np.pi + 90)
     names = [r'$\nabla \cdot B h$ (Gauss) at $r =$' + str(rc) + '$R_P$', 
              r'$|\nabla x B|h$ (Gauss) at $r =$' + str(rc) + '$R_P$', 
              r'$(\nabla x B)_r h$ (Gauss) at $r =$' + str(rc) + '$R_P$', 
@@ -184,8 +193,8 @@ def printMagnitudes(planet,
                   curlphi*np.sqrt(divd2), 
                   curvaturemod]
 
-    #maxf = [ 100.,10., 1., 1., 1.,100.,100., 100., 100., 100.]
-    #minf = [-100.,0.,-1.,-1.,-1.,  0.,  0.,-100.,-100.,-100.]
+    maxf = [ 100.,10., 1., 1., 1.,13.]
+    minf = [-100.,0.,-1.,-1.,-1.,  0.]
     
     if plane:
         for index, magnitude in enumerate(magnitudes):
@@ -195,9 +204,11 @@ def printMagnitudes(planet,
             ax.set_yticks([-90,-60,-30,0,30,60,90])
             ax.set_ylabel("Latitude")
             ax.set_xlabel("Longitude")
-            #magnitude[np.where(magnitude > maxf[index])] = maxf[index]
-            #magnitude[np.where(magnitude < minf[index])] = minf[index]
-            limit = max(np.absolute(np.max(magnitude)), np.absolute(np.min(magnitude)))
+
+            magnitude[np.where(magnitude > maxf[index])] = maxf[index]
+            magnitude[np.where(magnitude < minf[index])] = minf[index]
+            limit = max(np.absolute(np.max(magnitude)),
+                        np.absolute(np.min(magnitude)))
             if index == 1 or index == 5:
                 map = cmap2
                 vmin, vmax = np.min(magnitude), np.max(magnitude)
@@ -205,9 +216,21 @@ def printMagnitudes(planet,
                 map = cmap1
                 vmin, vmax = -limit, limit
             if planet=="Earth":
-                plt.contourf(Phi, Theta, np.flip(magnitude,1), cmap=map, vmin=vmin, vmax=vmax, levels=30)
+                plt.contourf(Phi,
+                             Theta,
+                             np.flip(magnitude,1),
+                             cmap=map,
+                             vmin=vmin,
+                             vmax=vmax,
+                             levels=30)
             else:
-                plt.contourf(Phi, Theta, magnitude, cmap=map, vmin=vmin, vmax=vmax, levels=30)
+                plt.contourf(Phi,
+                             Theta,
+                             magnitude,
+                             cmap=map,
+                             vmin=vmin,
+                             vmax=vmax,
+                             levels=30)
             plt.gca().invert_xaxis()
             cbar = plt.colorbar(orientation="horizontal", pad=.15, shrink=0.5)
             cbar.set_label(names[index])
@@ -222,23 +245,29 @@ def printMagnitudes(planet,
         for index, magnitude in enumerate(magnitudes):
             plt.clf()
             ax = plt.axes(projection=ccrs.Mollweide())
-            limit = max(np.absolute(np.max(magnitude)), np.absolute(np.min(magnitude)))
+            limit = max(np.absolute(np.max(magnitude)),
+                        np.absolute(np.min(magnitude)))
             if index == 1 or index == 5:
                 map = cmap2
                 vmin, vmax = np.min(magnitude), np.max(magnitude)
             else:
                 map = cmap1
                 vmin, vmax = -limit, limit
-            if planet=="Earth": 
-                plt.contourf(Phi - 180, Theta, magnitude, cmap=map, levels=35, vmin=vmin, vmax=vmax, transform=ccrs.PlateCarree())
-                ax.coastlines()
-            else:
-                plt.contourf(- Phi + 180, Theta, magnitude, cmap=map, levels=35, vmin=vmin, vmax=vmax, transform=ccrs.PlateCarree())
-            cbar = plt.colorbar(orientation="horizontal", pad=.1, shrink=0.5)
+            if planet=="Earth": ax.coastlines()
+            plt.contourf(Phi - 180,
+                        Theta,
+                        magnitude,
+                        cmap=map, 
+                        levels=35,
+                        vmin=vmin,
+                        vmax=vmax,
+                        transform=ccrs.PlateCarree())
+            cbar = plt.colorbar(orientation="horizontal", pad=.1, shrink=0.75)
             cbar.set_label(names[index])
-            cbar.ax.tick_params(labelsize=11)
+            cbar.ax.tick_params(labelsize=18)
             print("Saving " + planet + "/" + files[index] + '_Mollweide.png')
             try: plt.savefig(planet + "/" + files[index] + '_Mollweide.png')
             except:
                 os.mkdir(planet)
                 plt.savefig(planet + "/" + files[index] + '_Mollweide.png')
+#------------------------------------------------------------------------------------

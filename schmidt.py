@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------------------
-# schmidt.py contains the functions related to the constructions of the 
-# Schmidt coefficients, which make it the most important script. It is very 
+# schmidt.py contains the functions related to the definition of the 
+# Schmidt polynomials, which makes it the most important script. It is very 
 # important to reduce the number of loops and avoid repeating calculations, 
 # thus if you see some improvement contact us!
 # ---------------------------------------------------------------------------
@@ -9,7 +9,8 @@ import numpy as np
 
 # ---------------------------------------------------------------------------
 # This function creates all K and S for a given number of multipoles, the 
-# definitions for these expressions can be found in the pdfs in docs/
+# definitions for the recurssive relations can be found in the pdfs in docs/
+# ---------------------------------------------------------------------------
 def KandS(NPOL):
     K = np.zeros([NPOL, NPOL])
     S = np.zeros([NPOL, NPOL])
@@ -32,9 +33,16 @@ def KandS(NPOL):
 
 # ---------------------------------------------------------------------------
 # This function creates all Schmidt quasi-normalized Legendre polynomials for 
-# a given resolution and up to a given number of multipoles. This functions 
-# needs a set of already calculated K and S
-def Schmidtcoefficients(NPOL, Ntheta, theta, K, S):
+# a given theta grid and up to a given number of multipoles. This functions 
+# needs a set of already calculated K and S. The recurrsive formulae can also
+# be found in docs/
+# ---------------------------------------------------------------------------
+def Schmidtcoefficients(NPOL,
+                        Ntheta,
+                        theta,
+                        K,
+                        S):
+    
     Pgauss = np.zeros([NPOL, NPOL, Ntheta])
     derivPgauss = np.zeros([NPOL, NPOL, Ntheta])
     P = np.zeros([NPOL, NPOL, Ntheta])
@@ -68,11 +76,14 @@ def Schmidtcoefficients(NPOL, Ntheta, theta, K, S):
     return P, derivP
 
 # ---------------------------------------------------------------------------
-# This function creates the potencial spherical harmonic expansion for the 
-# magnetic field, and then its components for one value of theta. Thus it need
-# to be in a loop for r and phi. It needs as an input the phi/theta grid, a 
-# given radius and theta
-
+# This function creates the potential spherical harmonic expansion for the 
+# magnetic field and its components, for one valur of r, thera and phi. This
+# it needs to loop for all degree and order of the Schimdt polynomials. 
+# It needs as an input a specific r, theta, phi of a grid, and a the Schmidt
+# quasi-normalized Legendre polynomials for the same grid. This function 
+# needs to be looped trough all the grid to obtain a complete map. The
+# expressions can also be found in docs/
+# ---------------------------------------------------------------------------
 def potentialfunction(radius, 
                       ntheta, 
                       phi, 
@@ -103,6 +114,10 @@ def potentialfunction(radius,
         fphi += - sumaphi * (1 / radius) ** (n + 2) / np.sin(theta[ntheta])
     return poten / const, fr / const, ftheta / const, fphi / const
 
+# ---------------------------------------------------------------------------
+# This is exactly the same function as potentialfunction but for external
+# sources, as the sum slightly varies in the radial direction and thus in 
+# all derivatives.
 # ---------------------------------------------------------------------------
 def potentialfunctionexternal(radius, 
                               ntheta, 

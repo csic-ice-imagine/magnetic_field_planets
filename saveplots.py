@@ -17,6 +17,11 @@ cmap1 = cm.get_cmap('RdBu_r', 255)
 cmap2 = cm.get_cmap('inferno', 255)
 
 # ---------------------------------------------------------------------------
+# This function plots the potential, the magnetic field compnents and its 
+# magnitude.
+# ATTENTION: ccrs_library=True or Mollweide=True, means that you should have
+# installed the ccrs library, otherwise the function will crash.
+# ---------------------------------------------------------------------------
 
 def plot_all(planet, 
              rc, 
@@ -32,35 +37,40 @@ def plot_all(planet,
              plane=True, 
              Mollweide=False):
     
-# ---------------------------------------------------------------------------    
-    Phi, Theta = np.meshgrid(360 * (1 - phi / 2 / np.pi), - 180 * theta / np.pi + 90)
+    # -----------------------------------------------------------------------
+    # The grid for the plots needs to be in degrees not radians
+    Phi, Theta = np.meshgrid(360 * (1 - phi / 2 / np.pi),
+                             - 180 * theta / np.pi + 90)
+    # Names that will appear as the color bar title of each plot
     names = [r'Potential (Gauss · 1 $R_P$) at $r =$' + str(rc) + '$R_P$', 
              '$B_r$ (Gauss) at $r =$' + str(rc) + '$R_P$',
              '$B_θ$ (Gauss) at $r =$' + str(rc) + '$R_P$', 
              '$B_{\phi}$ (Gauss) at $r =$' + str(rc) + '$R_P$',
              '$|B|$ (Gauss) at $r =$' + str(rc) + '$R_P$']
+    # Names that will recieve the given png files
     files = [planet + '_r_' + rc_file + '_potential', 
              planet + '_r_' + rc_file + '_fieldr', 
              planet + '_r_' + rc_file + '_fieldtheta', 
              planet + '_r_' + rc_file + '_fieldphi',
              planet + '_r_' + rc_file + '_fieldmod']
+    # Set of magnitudes to be plotted (by the same order of names and files)
     magnitudes = [potential, fieldr, fieldtheta, fieldphi, fieldmod]
-
-# ---------------------------------------------------------------------------
+    # -----------------------------------------------------------------------
+    
     if plane:
         for index, magnitude in enumerate(magnitudes):
             plt.clf()
             if ccrs_library:
                 import cartopy.crs as ccrs
                 ax = plt.axes(projection=ccrs.PlateCarree())
-                if planet=="Earth": ax.coastlines()
             else:
                 ax = plt.axes()
             ax.set_xticks([-180,-120,-60,0,60,120,180,240,300,360])
             ax.set_yticks([-90,-60,-30,0,30,60,90])
             ax.set_ylabel("Latitude")
             ax.set_xlabel("Longitude")
-            limit = max(np.absolute(np.max(magnitude)), np.absolute(np.min(magnitude)))
+            limit = max(np.absolute(np.max(magnitude)), 
+                        np.absolute(np.min(magnitude)))
             if index==4: 
                 realmap = cmap2
                 vmin, vmax = np.min(magnitude), np.max(magnitude)
@@ -68,10 +78,23 @@ def plot_all(planet,
                 realmap = cmap1
                 vmin, vmax = -limit, limit
             if planet=="Earth":
-                plt.contourf(Phi - 180, Theta, np.flip(magnitude[0, :, :],1), cmap=realmap, vmin=vmin, vmax=vmax, levels=30)
+                plt.contourf(Phi - 180,
+                             Theta,
+                             np.flip(magnitude[0, :, :],1),
+                             cmap=realmap, vmin=vmin,
+                             vmax=vmax,
+                             levels=30)
+                ax.coastlines()
             else:
-                plt.contourf(- Phi + 180, Theta, magnitude[0, :, :], cmap=realmap, vmin=vmin, vmax=vmax, levels=30)
-            cbar = plt.colorbar(orientation="horizontal", pad=.15, shrink=0.5)
+                plt.contourf(- Phi + 180,
+                             Theta, magnitude[0, :, :],
+                             cmap=realmap,
+                             vmin=vmin,
+                             vmax=vmax,
+                             levels=30)
+            cbar = plt.colorbar(orientation="horizontal", 
+                                pad=.15, 
+                                shrink=0.5)
             cbar.set_label(names[index])
             cbar.ax.tick_params(labelsize=11)
             print(planet + "/" + files[index] + '.png')
@@ -79,34 +102,45 @@ def plot_all(planet,
             except:
                 os.mkdir(planet)
                 plt.savefig(planet + "/" + files[index] + '.png')
-
-# ---------------------------------------------------------------------------
+    # -----------------------------------------------------------------------
     if Mollweide:
         import cartopy.crs as ccrs
         for index, magnitude in enumerate(magnitudes):
             plt.clf()
             ax = plt.axes(projection=ccrs.Mollweide())
-            limit = max(np.absolute(np.max(magnitude)), np.absolute(np.min(magnitude)))
+            limit = max(np.absolute(np.max(magnitude)),
+                        np.absolute(np.min(magnitude)))
             if index==4: 
                 realmap = cmap2
                 vmin, vmax = np.min(magnitude), np.max(magnitude)
             else:
                 realmap = cmap1
                 vmin, vmax = -limit, limit
-            if planet=="Earth":
-                plt.contourf(-Phi + 180, Theta, magnitude[0, :, :], cmap=realmap, levels=30, vmin=vmin, vmax=vmax, transform=ccrs.PlateCarree()) 
-                ax.coastlines()
-            else:
-                plt.contourf(- Phi + 180, Theta, magnitude[0, :, :], cmap=realmap, levels=30, vmin=vmin, vmax=vmax, transform=ccrs.PlateCarree())
-            cbar = plt.colorbar(orientation="horizontal", pad=.1, shrink=0.5)
+            plt.contourf(- Phi + 180,
+                         Theta,
+                         magnitude[0, :, :],
+                         cmap=realmap,
+                         levels=30,
+                         vmin=vmin,
+                         vmax=vmax,
+                         transform=ccrs.PlateCarree())
+            if planet=="Earth": ax.coastlines()
+            cbar = plt.colorbar(orientation="horizontal",
+                                pad=.1,
+                                shrink=0.75)
             cbar.set_label(names[index])
-            cbar.ax.tick_params(labelsize=11)
+            cbar.ax.tick_params(labelsize=18)
             print(planet + "/" + files[index] + '_Mollweide.png')
             try: plt.savefig(planet + "/" + files[index] + '_Mollweide.png')
             except:
                 os.mkdir(planet)
                 plt.savefig(planet + "/" + files[index] + '_Mollweide.png')
 
+# ---------------------------------------------------------------------------
+# This function is almost the same but it only makes one plot, which you 
+# choose by the integer "index". This is used for looping to obtain a movie
+# for different radii or different years (Earth) and to only plot one
+# quantity.
 # ---------------------------------------------------------------------------
 
 def plot_1(planet, 
@@ -126,13 +160,13 @@ def plot_1(planet,
     rc_file = rc_file.replace(".","_")
 
 # ---------------------------------------------------------------------------
-    Phi, Theta = np.meshgrid(360 * (1 - phi / 2 / np.pi), - 180 * theta / np.pi + 90)
+    Phi, Theta = np.meshgrid(360 * (1 - phi / 2 / np.pi), 
+                             - 180 * theta / np.pi + 90)
     names = [r'Potential (Gauss · 1 $R_P$) at $r =$' + '%.3f'%rc + '$R_P$', 
              '$B_r$ (Gauss) at $r =$' + '%.3f'%rc + '$R_P$',
              '$B_θ$ (Gauss) at $r =$' + '%.3f'%rc + '$R_P$', 
              '$B_{\phi}$ (Gauss) at $r =$' + '%.3f'%rc + '$R_P$',
              '$|B|$ (Gauss) at $r =$' + '%.3f'%rc + '$R_P$']
-    
 # --------------------------------------------------------------------------- 
     if plane:
         files = [planet + '_potential_r_' + '%03d'%frame, 
@@ -151,7 +185,8 @@ def plot_1(planet,
         ax.set_yticks([-90,-60,-30,0,30,60,90])
         ax.set_ylabel("Latitude")
         ax.set_xlabel("Longitude")
-        limit = max(np.absolute(np.max(magnitude)), np.absolute(np.min(magnitude)))
+        limit = max(np.absolute(np.max(magnitude)),
+                    np.absolute(np.min(magnitude)))
         if index==4: 
             realmap = cmap2
             vmin, vmax = np.min(magnitude), np.max(magnitude)
@@ -159,26 +194,43 @@ def plot_1(planet,
             realmap = cmap1
             vmin, vmax = -limit, limit
         if planet == "Earth":
-            plt.contourf(Phi, Theta, np.flip(magnitude), cmap=realmap, vmin=vmin, vmax=vmax, levels=30)
+            plt.contourf(Phi,
+                         Theta,
+                         np.flip(magnitude),
+                         cmap=realmap,
+                         vmin=vmin,
+                         vmax=vmax,
+                         levels=30)
         else:
-            plt.contourf(Phi, Theta, magnitude, cmap=realmap, vmin=vmin, vmax=vmax, levels=30)
-        cbar = plt.colorbar(orientation="horizontal", pad=.15, shrink=0.5)
+            plt.contourf(Phi,
+                         Theta,
+                         magnitude,
+                         cmap=realmap,
+                         vmin=vmin,
+                         vmax=vmax,
+                         levels=30)
+        cbar = plt.colorbar(orientation="horizontal",
+                            pad=.15,
+                            shrink=0.5)
         cbar.set_label(names[index])
         cbar.ax.tick_params(labelsize=11)
         if years:
             plt.title(str(year))
-            print("Earth_movie_years_r_" + rc_file + "/" + files[index] + '.png')
+            print("Earth_movie_years_r_" + rc_file + "/" + \
+                  files[index] + '.png')
         else:
             print(planet + "_movie/" + files[index] + '.png')
         try: 
             if years:
-                plt.savefig("Earth_movie_years_r_" + rc_file + "/" + files[index] + '.png')
+                plt.savefig("Earth_movie_years_r_" + rc_file + "/" + \
+                            files[index] + '.png')
             else:
                 plt.savefig(planet + "_movie/" + files[index] + '.png')
         except:
             if years:
                 os.mkdir("Earth_movie_years_r_" + rc_file + "/")
-                plt.savefig("Earth_movie_years_r_" + rc_file + "/" + files[index] + '.png')
+                plt.savefig("Earth_movie_years_r_" + rc_file + "/" + \
+                            files[index] + '.png')
             else:
                 os.mkdir(planet + "_movie/")
                 plt.savefig(planet + "_movie/" + files[index] + '.png')
@@ -193,32 +245,45 @@ def plot_1(planet,
         import cartopy.crs as ccrs
         plt.clf()
         ax = plt.axes(projection=ccrs.Mollweide())
-        limit = max(np.absolute(np.max(magnitude)), np.absolute(np.min(magnitude)))
+        limit = max(np.absolute(np.max(magnitude)),
+                    np.absolute(np.min(magnitude)))
         if index==4: 
             realmap = cmap2
             vmin, vmax = np.min(magnitude), np.max(magnitude)
         else:
             realmap = cmap1
             vmin, vmax = -limit, limit
-        plt.contourf(-Phi, Theta, magnitude, cmap=realmap, levels=35, vmin=vmin, vmax=vmax, transform=ccrs.PlateCarree())
+        plt.contourf(-Phi,
+                     Theta,
+                     magnitude,
+                     cmap=realmap,
+                     levels=35,
+                     vmin=vmin,
+                     vmax=vmax,
+                     transform=ccrs.PlateCarree())
         if planet=="Earth": ax.coastlines()
-        cbar = plt.colorbar(orientation="horizontal", pad=.1, shrink=0.5)
+        cbar = plt.colorbar(orientation="horizontal",
+                            pad=.1,
+                            shrink=0.5)
         cbar.set_label(names[index])
         cbar.ax.tick_params(labelsize=11)
         if years:
             plt.title(str(year))
-            print("Earth_movie_years_r_" + rc_file + "/" + files[index] + '.png')
+            print("Earth_movie_years_r_" + rc_file + "/" + \
+                  files[index] + '.png')
         else:
             print(planet + "_movie/" + files[index] + '.png')
         try: 
             if years:
-                plt.savefig("Earth_movie_years_r_" + rc_file + "/" + files[index] + '.png')
+                plt.savefig("Earth_movie_years_r_" + rc_file + "/" \
+                            + files[index] + '.png')
             else:
                 plt.savefig(planet + "_movie/" + files[index] + '.png')
         except:
             if years:
                 os.mkdir("Earth_movie_years_r_" + rc_file + "/")
-                plt.savefig("Earth_movie_years_r_" + rc_file + "/" + files[index] + '.png')
+                plt.savefig("Earth_movie_years_r_" + rc_file + "/" + \
+                            files[index] + '.png')
             else:
                 os.mkdir(planet + "_movie/")
                 plt.savefig(planet + "_movie/" + files[index] + '.png')

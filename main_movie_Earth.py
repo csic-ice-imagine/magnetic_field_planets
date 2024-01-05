@@ -1,3 +1,15 @@
+# ---------------------------------------------------------------------------
+# main_movie_Earth.py is very similar to movie.py. It can be used to plot one 
+# magnitude many times over at different radii. Similarly, you only need to 
+# use the command:
+# python main.py
+# or run it in any python IDE/code editor. Here you don't have to play with 
+# anything (maybe only resolution and radius). It plots every all available 
+# years. Once all snapshots have been created, you can join them in an
+# movie file using ffmpeg:
+# ffmpeg -framerate 4 -i Earth_fieldr_Mollweide_r_%03d.png Earth_fieldr_Mollweide.mp4
+#----------------------------------------------------------------------------
+
 import numpy as np
 import matplotlib.pyplot as plt
 import reader, schmidt, saveoutput, saveplots, lowes_spec, magnitudes
@@ -78,15 +90,25 @@ plt.rcParams['font.size'] = 16
 plt.rcParams['lines.linewidth'] = 1
 plt.rcParams["figure.autolayout"] = True
 
+#----------------------------------------------------------------------------
+
 for frame, year in enumerate(years):
     year = int(year)
 
-    # This part defines the K and S matrices with dimension NPOL x NPOL, depending on the 
-    # planet and the year
+    # The following function reads the g's and h's constants and puts them 
+    # in NPOL x NPOL matrices, depending on the planet and the year:
+    print("------------------------------------------------------------")
+    print("Reading Schmidt constants (g,h,G,H):")
     g, h, G, H = reader.reader(planet, year, NPOL, NPOL_EXT)
 
-    # This part defines the K and S matrices with dimension NPOL x NPOL
-    K, S = schmidt.KandS(NPOL)
+    # This function defines the K and S matrices with dimension NPOL x NPOL
+    print("------------------------------------------------------------")
+    print("Calculating K and S recursively:")
+
+    # This function defines the Gaussian-normalized and the Schmidt quasi-normalized
+    # associated Legendre polynomials for the given theta resolution
+    print("------------------------------------------------------------")
+    print("Calculating Schmidt quasi-normalized polynomiasl recursively:")
 
     # This part defines the Gaussian-normalized and
     # the Schmidt quasi-normalized associated Legendre polynomials
@@ -98,43 +120,63 @@ for frame, year in enumerate(years):
     fieldtheta, fieldtheta_EXT = np.zeros([Ntheta, Nphi]), np.zeros([Ntheta, Nphi])
     fieldphi, fieldphi_EXT = np.zeros([Ntheta, Nphi]), np.zeros([Ntheta, Nphi])
     fieldmod = np.zeros([Ntheta, Nphi])
-    fieldx = np.zeros([Ntheta, Nphi])
-    fieldy = np.zeros([Ntheta, Nphi])
-    fieldz = np.zeros([Ntheta, Nphi])
 
     # Loops for all r, theta and phi and obtaining all the corresponding potential and fields
     for j in range(0, Ntheta):
         for k in range(0, Nphi):
-            potential[j, k], fieldr[j, k], fieldtheta[j, k], fieldphi[j, k] = schmidt.potentialfunction(radius[:], j, phi[k], theta, NPOL, P, derivP, const, g, h)
+            potential[j, k], fieldr[j, k], fieldtheta[j, k], fieldphi[j, k] = \
+                schmidt.potentialfunction(radius[:], j, phi[k], theta, NPOL, P, derivP, const, g, h)
             if NPOL_EXT != 0:
-                potential_EXT[j, k], fieldr_EXT[j, k], fieldtheta_EXT[j, k], fieldphi_EXT[j, k] = schmidt.potentialfunctionexternal(radius[:], j, phi[k], theta, NPOL_EXT, P, derivP, const, G, H)
+                potential_EXT[j, k], fieldr_EXT[j, k], fieldtheta_EXT[j, k], fieldphi_EXT[j, k] = \
+                    schmidt.potentialfunctionexternal(radius[:], j, phi[k], theta, NPOL_EXT, P, derivP, const, G, H)
                 potential[j, k] += potential_EXT[j, k]
                 fieldr[j, k] += fieldr_EXT[j, k]
                 fieldtheta[j, k] += fieldtheta_EXT[j, k]
                 fieldphi[j, k] += fieldphi_EXT[j, k]
             fieldmod[j, k] = np.sqrt(fieldr[j, k] ** 2 + fieldtheta[j, k] ** 2 + fieldphi[j, k] ** 2)
-            fieldx[j, k] = np.cos(phi[k]) * np.sin(theta[j]) * fieldr[j, k] + np.cos(phi[k]) * np.cos(theta[j]) * \
-                                fieldtheta[j, k] - np.sin(phi[j]) * fieldphi[j, k]
-            fieldy[j, k] = np.sin(phi[k]) * np.sin(theta[j]) * fieldr[j, k] + np.sin(phi[k]) * np.cos(theta[j]) * \
-                                fieldtheta[j, k] + np.cos(phi[j]) * fieldphi[j, k]
-            fieldz[j, k] = np.cos(theta[j]) * fieldr[j, k] - np.sin(theta[j]) * fieldtheta[j, k]
 
     all_magnitudes = [potential, fieldr, fieldtheta, fieldphi, fieldmod]
     
-    print("---------------------------------------------")
+    print("------------------------------------------------------------")
     print("Saving plots for " + planet + " r = " + str(rc))
     
     # Saves plane projection of the magnitudes
-    if planeproj: saveplots.plot_1(planet, rc, frame, phi, theta, all_magnitudes[index], index, ccrs_library, year=year, years=True, plane=True, Mollweide=False)
+    if planeproj: saveplots.plot_1(planet,
+                                   rc,
+                                   frame,
+                                   phi,
+                                   theta,
+                                   all_magnitudes[index],
+                                   index,
+                                   ccrs_library,
+                                   year=year,
+                                   years=True,
+                                   plane=True,
+                                   Mollweide=False)
 
     # Saves Mollweide projection of the magnitudes
-    if mollweideproj: saveplots.plot_1(planet, rc, frame, phi, theta, all_magnitudes[index], index, ccrs_library, year=year, years=True, plane=False, Mollweide=True)
+    if mollweideproj: saveplots.plot_1(planet,
+                                       rc,
+                                       frame,
+                                       phi,
+                                       theta,
+                                       all_magnitudes[index],
+                                       index,
+                                       ccrs_library,
+                                       year=year,
+                                       years=True,
+                                       plane=False,
+                                       Mollweide=True)
 
     # Obtain the Lowes spectrum for a the given plotted radius and plot it
     if lowes:
         Rn = lowes_spec.lowes_spec(NPOL, radius, g, h)
         lowes_spec.plot_lowes(planet, rc, frame, Rn, movie=True, year=year, years=True)
     
-    print("---------------------------------------------")
+    
+print("------------------------------------------------------------")
+print("--- Created by: A.Elias, The IMAGINE PROJECT, ICE-CSIC   ---")
+print("------------------------------------------------------------")
 
-# ffmpeg -framerate 4 -i Earth_fieldr_Mollweide_r_%03d.png Earth_fieldr_Mollweide.mp4
+#----------------------------------------------------------------------------
+

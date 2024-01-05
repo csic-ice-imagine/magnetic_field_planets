@@ -6,20 +6,49 @@
 import numpy as np
 import csv
 
-def savecsv(Nr, Ntheta, Nphi, radius, phi, theta, potential, fieldr, fieldtheta, fieldphi, fieldmod, planet, year):
+def savecsv(Nr,
+            Ntheta,
+            Nphi,
+            radius,
+            phi,
+            theta,
+            potential,
+            fieldr,
+            fieldtheta,
+            fieldphi,
+            fieldmod,
+            planet,
+            year):
+    
     if planet == "Earth":
-        names = ['Earthfieldpot_' + str(year) + '.csv', 'Earthfieldr_' + str(year) + '.csv',
-                 'Earthfieldtheta_' + str(year) + '.csv', 'Earthfieldphi_' + str(year) + '.csv',
+        names = ['Earthfieldpot_' + str(year) + '.csv', 
+                 'Earthfieldr_' + str(year) + '.csv',
+                 'Earthfieldtheta_' + str(year) + '.csv', 
+                 'Earthfieldphi_' + str(year) + '.csv',
                  'Earthfieldmod_' + str(year) + '.csv']
+        
     elif planet == "Jupiter":
-        names = ['Jupiterfieldpot.csv', 'Jupiterfieldr.csv', 'Jupiterfieldtheta.csv', 'Jupiterfieldphi.csv',
+        names = ['Jupiterfieldpot.csv', 
+                 'Jupiterfieldr.csv', 
+                 'Jupiterfieldtheta.csv', 
+                 'Jupiterfieldphi.csv',
                  'Jupiterfieldmod.csv']
+        
     else:
-        names = ['error.csv', 'error.csv', 'error.csv', 'error.csv', 'error.csv']
+        names = ['error.csv',
+                 'error.csv',
+                 'error.csv',
+                 'error.csv',
+                 'error.csv']
 
-    heads = [["X", "Y", "Z", "Pot"], ["X", "Y", "Z", "Br"], ["X", "Y", "Z", "Btheta"], ["X", "Y", "Z", "Bphi"],
+    heads = [["X", "Y", "Z", "Pot"], 
+             ["X", "Y", "Z", "Br"], 
+             ["X", "Y", "Z", "Btheta"], 
+             ["X", "Y", "Z", "Bphi"],
              ["X", "Y", "Z", "Bmod"]]
+    
     magntidues = [potential, fieldr, fieldtheta, fieldphi, fieldmod]
+
     printvalues = np.zeros([Nr, Ntheta, Nphi])
     for number in range(0, 5):
         outputfile = names[number]
@@ -32,7 +61,8 @@ def savecsv(Nr, Ntheta, Nphi, radius, phi, theta, potential, fieldr, fieldtheta,
                 for j in range(0, Ntheta):
                     for k in range(0, Nphi):
                         values = [radius[i] * np.cos(phi[k]) * np.sin(theta[j]),
-                                  radius[i] * np.sin(phi[k]) * np.sin(theta[j]), radius[i] * np.cos(theta[j]),
+                                  radius[i] * np.sin(phi[k]) * np.sin(theta[j]), 
+                                  radius[i] * np.cos(theta[j]),
                                   printvalues[i, j, k]]
                         writer.writerow(values)
 

@@ -1,3 +1,13 @@
+# ---------------------------------------------------------------------------
+# main_movie.py is very similar to movie.py. It can be used to plot one 
+# magnitude many times over at different radii. Similarly, you only need to 
+# use the command:
+# python main_movie.py
+# or run it in any python IDE/code editor. Now, you only need to play with 
+# the first 20ish lines. Once all snapshots have been created, you can join
+# them in an movie file using ffmpeg:
+# ffmpeg -framerate 4 -i Earth_fieldr_Mollweide_r_%03d.png Earth_fieldr_Mollweide_r_.mp4
+#----------------------------------------------------------------------------
 import numpy as np
 import matplotlib.pyplot as plt
 import reader, schmidt, saveoutput, saveplots, lowes_spec, magnitudes
@@ -5,32 +15,42 @@ import reader, schmidt, saveoutput, saveplots, lowes_spec, magnitudes
 # Plot resolution
 Ntheta = 50      # Latitudinal points (North-South direction)
 Nphi = 2*Ntheta  # Longitudial points (East-West direction)
-Nr = 100         # Radial points which convert to movie frames
+Nr = 100         # Radial points which will be the number of movie frames
 
-a = 1  # Should be 6371.2/72492 (Earth/Jupiter), but renormalize to 1, since r/a is what matters. It is used only for the calculation of some magnitudes
-rc_i,rc_o = 0.45, 1.50
-
-# Definition of the spherical grid matrices
-#phi    = np.linspace(1 * np.pi / Nphi, 2 * np.pi *(1 + 1/Nphi), num=Nphi)
-phi    = np.linspace(0, 2*np.pi, num=Nphi)
-theta  = np.linspace(.1 * np.pi / Ntheta, np.pi * (1 - .1 / Ntheta), num=Ntheta)
-rc     = np.linspace(rc_i, rc_o, num=Nr)
+# Radial interval (in radial planetary units) to plot Nr number of plots
+rc_i,rc_o = 0.45, 1.50 
 
 # Planet (or satellite) to choose. Raw data is located in folder data/
-planet, year = "Earth", 2020
-# You can choose either Earth, Jupiter, Jupiter_2021, Saturn, Neptune, Uranus, Mercury
-# and Ganymede. Anything else will make the code stop.  If you choose Earth, you also need
-# to choose a year, which can only be: 1900, 1905, 1910, ..., to 2020.
- 
-# Switches to save projections in plane and Mollweide projections. Coastlines are included in Earth plots.
+planet, year = "Jupiter_2021", 2020
+# You can choose either Earth, Jupiter, Jupiter_2021, Saturn, Neptune, Uranus,
+# Mercury and Ganymede. Anything else will make the code stop.  If you choose 
+# Earth, you also need to choose a year, which can only be: 1900, 1905, 1910,
+#  ..., to 2020.
+
+# Definition of the spherical grid matrices
+phi    = np.linspace(0, 2*np.pi, num=Nphi)
+theta  = np.linspace(np.pi / Ntheta, np.pi * (1 - 1 /  Ntheta), num=Ntheta)
+# To calculate curvature/curl it is recommended to use a fixed value
+# theta  = np.linspace(np.pi / 20, np.pi * (1 - 1 / 20), num=Ntheta)
+# to avoid doing operations too close to the axis.
+rc     = np.linspace(rc_i, rc_o, num=Nr)
+
+
+#----------------------------------------------------------------------------
+# Switches to save projections in plane and Mollweide projections. Coastlines
+#  are included in Earth plots.
 planeproj, mollweideproj = True, True
-# If you have successfully installed the ccrs library you can put the Earth coastline in the Earth plane projections also, using the boolean ccrs_library
+# If you have successfully installed the ccrs library you can put the Earth 
+# coastline in the Earth plane projections also, using the boolean ccrs_library
 ccrs_library = True
-# ATTENTION: To plot using the Mollweide projection you need the ccrs library. The combination mollweideproj=True, ccrs_library=False will crash if you have 
+
+# ATTENTION: To plot using the Mollweide projection you need the ccrs library.
+# The combination mollweideproj=True, ccrs_library=False will crash if you have 
 # not installed this library
 
 # Switch to save the Lowes spectrum for the given radius
 lowes = True
+
 
 magnitude_name = "fieldr"
 
@@ -71,11 +91,17 @@ elif planet=="Ganymede":
 else:
     NPOL,NPOL_EXT=0,0
 
-# This part defines the K and S matrices with dimension NPOL x NPOL, depending on the 
-# planet and the year
+#----------------------------------------------------------------------------
+# The following function reads the g's and h's constants and puts them 
+# in NPOL x NPOL matrices, depending on the planet and the year:
+print("------------------------------------------------------------")
+print("Reading Schmidt constants (g,h,G,H):")
 g, h, G, H = reader.reader(planet, year, NPOL, NPOL_EXT)
 
-# This part defines the K and S matrices with dimension NPOL x NPOL
+
+# This function defines the K and S matrices with dimension NPOL x NPOL
+print("------------------------------------------------------------")
+print("Calculating K and S recursively:")
 K, S = schmidt.KandS(NPOL)
 
 # Plot parameters
@@ -88,8 +114,10 @@ for frame, radii in enumerate(rc):
 
     radius  = np.linspace(radii,radii+0.00001, num=1)
 
-    # This part defines the Gaussian-normalized and
-    # the Schmidt quasi-normalized associated Legendre polynomials
+    # This function defines the Gaussian-normalized and the Schmidt quasi-normalized
+    # associated Legendre polynomials for the given theta resolution
+    print("------------------------------------------------------------")
+    print("Calculating Schmidt quasi-normalized polynomiasl recursively:")
     P, derivP = schmidt.Schmidtcoefficients(NPOL, Ntheta, theta, K, S)
 
     # Initialize all components of the magnetic field (spherical, cartesian and modulus)
@@ -98,44 +126,58 @@ for frame, radii in enumerate(rc):
     fieldtheta, fieldtheta_EXT = np.zeros([Ntheta, Nphi]), np.zeros([Ntheta, Nphi])
     fieldphi, fieldphi_EXT = np.zeros([Ntheta, Nphi]), np.zeros([Ntheta, Nphi])
     fieldmod = np.zeros([Ntheta, Nphi])
-    fieldx = np.zeros([Ntheta, Nphi])
-    fieldy = np.zeros([Ntheta, Nphi])
-    fieldz = np.zeros([Ntheta, Nphi])
 
     # Loops for all r, theta and phi and obtaining all the corresponding potential and fields
     for j in range(0, Ntheta):
         for k in range(0, Nphi):
-            potential[j, k], fieldr[j, k], fieldtheta[j, k], fieldphi[j, k] = schmidt.potentialfunction(radius[:], j, phi[k], theta, NPOL, P, derivP, const, g, h)
+            potential[j, k], fieldr[j, k], fieldtheta[j, k], fieldphi[j, k] = \
+                schmidt.potentialfunction(radius[:], j, phi[k], theta, NPOL, P, derivP, const, g, h)
             if NPOL_EXT != 0:
-                potential_EXT[j, k], fieldr_EXT[j, k], fieldtheta_EXT[j, k], fieldphi_EXT[j, k] = schmidt.potentialfunctionexternal(radius[:], j, phi[k], theta, NPOL_EXT, P, derivP, const, G, H)
+                potential_EXT[j, k], fieldr_EXT[j, k], fieldtheta_EXT[j, k], fieldphi_EXT[j, k] = \
+                    schmidt.potentialfunctionexternal(radius[:], j, phi[k], theta, NPOL_EXT, P, derivP, const, G, H)
                 potential[j, k] += potential_EXT[j, k]
                 fieldr[j, k] += fieldr_EXT[j, k]
                 fieldtheta[j, k] += fieldtheta_EXT[j, k]
                 fieldphi[j, k] += fieldphi_EXT[j, k]
             fieldmod[j, k] = np.sqrt(fieldr[j, k] ** 2 + fieldtheta[j, k] ** 2 + fieldphi[j, k] ** 2)
-            fieldx[j, k] = np.cos(phi[k]) * np.sin(theta[j]) * fieldr[j, k] + np.cos(phi[k]) * np.cos(theta[j]) * \
-                                fieldtheta[j, k] - np.sin(phi[j]) * fieldphi[j, k]
-            fieldy[j, k] = np.sin(phi[k]) * np.sin(theta[j]) * fieldr[j, k] + np.sin(phi[k]) * np.cos(theta[j]) * \
-                                fieldtheta[j, k] + np.cos(phi[j]) * fieldphi[j, k]
-            fieldz[j, k] = np.cos(theta[j]) * fieldr[j, k] - np.sin(theta[j]) * fieldtheta[j, k]
 
     all_magnitudes = [potential, fieldr, fieldtheta, fieldphi, fieldmod]
     
-    print("---------------------------------------------")
+    
+    print("------------------------------------------------------------")
     print("Saving plots for " + planet + " r = " + str(radii))
     
     # Saves plane projection of the magnitudes
     
-    if planeproj: saveplots.plot_1(planet, radii, frame, phi, theta, all_magnitudes[index], index, ccrs_library, plane=True, Mollweide=False)
+    if planeproj: saveplots.plot_1(planet,
+                                   radii,
+                                   frame,
+                                   phi,
+                                   theta,
+                                   all_magnitudes[index],
+                                   index, ccrs_library,
+                                   plane=True,
+                                   Mollweide=False)
 
     # Saves Mollweide projection of the magnitudes
-    if mollweideproj: saveplots.plot_1(planet, radii, frame, phi, theta, all_magnitudes[index], index, ccrs_library, plane=False, Mollweide=True)
+    if mollweideproj: saveplots.plot_1(planet,
+                                       radii,
+                                       frame,
+                                       phi,
+                                       theta,
+                                       all_magnitudes[index],
+                                       index, ccrs_library,
+                                       plane=False,
+                                       Mollweide=True)
 
     # Obtain the Lowes spectrum for a the given plotted radius and plot it
     if lowes:
         Rn = lowes_spec.lowes_spec(NPOL, radius, g, h)
         lowes_spec.plot_lowes(planet, radii, frame, Rn, movie=True)
-    
-    print("---------------------------------------------")
 
-# ffmpeg -framerate 4 -i Earth_fieldr_Mollweide_r_%03d.png Earth_fieldr_Mollweide_r_.mp4
+    
+print("------------------------------------------------------------")
+print("--- Created by: A.Elias, The IMAGINE PROJECT, ICE-CSIC   ---")
+print("------------------------------------------------------------")
+
+#----------------------------------------------------------------------------

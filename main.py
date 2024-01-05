@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------
-# main.py is the main input to produce the planetary magentic field plots.
+# main.py has all the inputs to produce the planetary magentic field plots.
 # You only need to use the command:
 # python main.py
 # or run it in any python IDE/code editor.
@@ -16,9 +16,9 @@ Nphi = 2*Ntheta  # Longitudial points (East-West direction)
 Nr = 1           # Radial points (change only to generate 3D output)
 
 # Radius considered in the map plot, and name of the corresponding images 
-# This sould be the actual radius in kilometers (6371.2/72492 for
+# This should be the actual radius in kilometers (6371.2/72492 for
 # Earth/Jupiter), but we renormalize to 1, since r/a is what matters.
-rc = 1.10 
+rc = 0.90
 
 # String used for naming the output files
 rc_file = '%.2f'%rc
@@ -58,7 +58,7 @@ multiple_lowes_r, lowes_radii = False, np.array([1.45,1.30,1.15,1.00,0.85,0.70,0
 plot_magnitudes = True
 
 # To calulate derivatives and laplacians in a given radius we need at least 
-# two other shells of points
+# two other shells of points (you do not need to touch this at first!).
 if plot_magnitudes:
     Nr = 3     
     dr = 0.001 # Radial distance between the three shells (in units set to 1)
@@ -106,16 +106,20 @@ else:
 
 #----------------------------------------------------------------------------
 # The following function reads the g's and h's constants and puts them 
-# in NPOL x NPOL matrices, 
-# depending on the planet and the year
+# in NPOL x NPOL matrices, depending on the planet and the year:
+print("------------------------------------------------------------")
+print("Reading Schmidt constants (g,h,G,H):")
 g, h, G, H = reader.reader(planet, year, NPOL, NPOL_EXT)
 
 # This function defines the K and S matrices with dimension NPOL x NPOL
+print("------------------------------------------------------------")
+print("Calculating K and S recursively:")
 K, S = schmidt.KandS(NPOL)
 
 # This function defines the Gaussian-normalized and the Schmidt quasi-normalized
-# associated Legendre
-# polynomials for the given resolution
+# associated Legendre polynomials for the given theta resolution
+print("------------------------------------------------------------")
+print("Calculating Schmidt quasi-normalized polynomiasl recursively:")
 P, derivP = schmidt.Schmidtcoefficients(NPOL, Ntheta, theta, K, S)
 
 #----------------------------------------------------------------------------
@@ -134,7 +138,7 @@ fieldz = np.zeros([Nr, Ntheta, Nphi])
 for j in range(0, Ntheta):
     for k in range(0, Nphi):
         potential[:, j, k], fieldr[:, j, k], fieldtheta[:, j, k], fieldphi[:, j, k] = \
-              schmidt.potentialfunction(radius[:], j, phi[k], theta, NPOL, P, derivP, const, g, h)
+            schmidt.potentialfunction(radius[:], j, phi[k], theta, NPOL, P, derivP, const, g, h)
         if NPOL_EXT != 0:
             potential_EXT[:, j, k], fieldr_EXT[:, j, k], fieldtheta_EXT[:, j, k], fieldphi_EXT[:, j, k] = \
                 schmidt.potentialfunctionexternal(radius[:], j, phi[k], theta, NPOL_EXT, P, derivP, const, G, H)
@@ -192,7 +196,7 @@ if filevtu: saveoutput.savevtu(Nr,
 #----------------------------------------------------------------------------
 # Plot parameters
 plt.rcParams['figure.figsize'] = (12, 8)
-plt.rcParams['font.size'] = 16
+plt.rcParams['font.size'] = 23
 plt.rcParams['lines.linewidth'] = 1
 plt.rcParams["figure.autolayout"] = True
 
@@ -230,6 +234,7 @@ if mollweideproj: saveplots.plot_all(planet,
                                      plane=False, 
                                      Mollweide=True)
 
+# Calculates the curl, divergence, and curvature and plots them
 if plot_magnitudes: magnitudes.printMagnitudes(planet, 
                                                Ntheta, 
                                                Nphi, 
@@ -258,6 +263,8 @@ if multiple_lowes_r:
         Rn[r,:] = lowes_spec.lowes_spec(NPOL, lowes_radii[r], g, h)
     lowes_spec.plot_multiple_lowes(planet, lowes_radii, Rn)
 
+print("------------------------------------------------------------")
+print("--- Created by: A.Elias, The IMAGINE PROJECT, ICE-CSIC   ---")
 print("------------------------------------------------------------")
 
 #----------------------------------------------------------------------------
