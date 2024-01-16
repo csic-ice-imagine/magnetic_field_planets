@@ -78,7 +78,7 @@ def plot_all(planet,
                 realmap = cmap1
                 vmin, vmax = -limit, limit
             if planet=="Earth":
-                plt.contourf(Phi - 180,
+                plt.contourf(Phi,
                              Theta,
                              np.flip(magnitude[0, :, :],1),
                              cmap=realmap, vmin=vmin,
@@ -87,7 +87,8 @@ def plot_all(planet,
                 ax.coastlines()
             else:
                 plt.contourf(- Phi + 180,
-                             Theta, magnitude[0, :, :],
+                             Theta, 
+                             magnitude[0, :, :],
                              cmap=realmap,
                              vmin=vmin,
                              vmax=vmax,
@@ -116,15 +117,26 @@ def plot_all(planet,
             else:
                 realmap = cmap1
                 vmin, vmax = -limit, limit
-            plt.contourf(- Phi + 180,
-                         Theta,
-                         magnitude[0, :, :],
-                         cmap=realmap,
-                         levels=30,
-                         vmin=vmin,
-                         vmax=vmax,
-                         transform=ccrs.PlateCarree())
-            if planet=="Earth": ax.coastlines()
+            if planet=="Earth":
+                plt.contourf(Phi,
+                            Theta,
+                            np.flip(magnitude[0, :, :],1),
+                            cmap=realmap,
+                            levels=30,
+                            vmin=vmin,
+                            vmax=vmax,
+                            transform=ccrs.PlateCarree())
+                ax.coastlines()
+            else:
+                plt.contourf(- Phi + 180,
+                            Theta,
+                            magnitude[0, :, :],
+                            cmap=realmap,
+                            levels=30,
+                            vmin=vmin,
+                            vmax=vmax,
+                            transform=ccrs.PlateCarree())
+            
             cbar = plt.colorbar(orientation="horizontal",
                                 pad=.1,
                                 shrink=0.75)

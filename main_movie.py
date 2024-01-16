@@ -10,7 +10,7 @@
 #----------------------------------------------------------------------------
 import numpy as np
 import matplotlib.pyplot as plt
-import reader, schmidt, saveoutput, saveplots, lowes_spec, magnitudes
+import reader, schmidt, saveplots, lowes_spec
 
 # Plot resolution
 Ntheta = 50      # Latitudinal points (North-South direction)
@@ -51,6 +51,9 @@ ccrs_library = True
 # Switch to save the Lowes spectrum for the given radius
 lowes = True
 
+#----------------------------------------------------------------------------
+# For the radial movies only choose one magnitude to plot. The usual ones 
+# are the radial magnetic field, or its modulus. Below you can see the options
 
 magnitude_name = "fieldr"
 
@@ -60,10 +63,14 @@ elif magnitude_name == "fieldtheta": index = 2
 elif magnitude_name == "fieldphi": index = 3
 elif magnitude_name == "fieldmod": index = 4
 else:
-    print("There is no option for " + planet + " (maybe you had a typo)")
+    print("There is no option for " + magnitude_name + " (maybe you had a typo)")
     raise SystemExit
 
-# Depending on the planet you choose, the data will have different multipole definition and will be normalized in nT or G
+#----------------------------------------------------------------------------
+# Depending on the planet you choose, the data will have different 
+# multipole definition and will be normalized in nT or G.
+# Constants const are used to go from nanotesla to gauss (all plots have gauss
+# as main units). This and the total 
 if planet=="Earth":
     NPOL,NPOL_EXT=14,0
     const=1e5  # To go from nanotesla to gauss (usually the plots are using gauss) if necessary

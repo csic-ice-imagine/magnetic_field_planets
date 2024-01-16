@@ -11,25 +11,25 @@ import matplotlib.pyplot as plt
 import reader, schmidt, saveoutput, saveplots, lowes_spec, magnitudes
 #----------------------------------------------------------------------------
 # Grid resolution
-Ntheta = 200     # Latitudinal points (North-South direction)
+Ntheta = 50     # Latitudinal points (North-South direction)
 Nphi = 2*Ntheta  # Longitudial points (East-West direction)
 Nr = 1           # Radial points (change only to generate 3D output)
 
 # Radius considered in the map plot, and name of the corresponding images 
 # This should be the actual radius in kilometers (6371.2/72492 for
 # Earth/Jupiter), but we renormalize to 1, since r/a is what matters.
-rc = 0.90
+rc = 1.00
 
 # String used for naming the output files
 rc_file = '%.2f'%rc
 rc_file = rc_file.replace(".","_") 
 
 # Planet (or satellite) to choose. Raw data is located in folder data/
-planet, year = "Jupiter_2021", 2020
+planet, year = "My_own", 2020
 # You can choose either Earth, Jupiter, Jupiter_2021, Saturn, Neptune, Uranus,
-# Mercury and Ganymede. Anything else will make the code stop.  If you choose 
-# Earth, you also need to choose a year, which can only be: 1900, 1905, 1910,
-#  ..., to 2020.
+# Mercury and Ganymede or My_own. Anything else will make the code stop.  If 
+# you choose Earth, you also need to choose a year, which can only be: 1900, 
+# 1905, 1910, ..., to 2020.
 
 # Definition of the spherical grid matrices
 phi    = np.linspace(0, 2*np.pi, num=Nphi)
@@ -55,7 +55,7 @@ lowes = True
 # Switch to save the Lowes spectrum for a number of radii
 multiple_lowes_r, lowes_radii = False, np.array([1.45,1.30,1.15,1.00,0.85,0.70,0.55])
 # Switch to plot the curl, divergence and curvature of the magnetic field
-plot_magnitudes = True
+plot_magnitudes = False
 
 # To calulate derivatives and laplacians in a given radius we need at least 
 # two other shells of points (you do not need to touch this at first!).
@@ -100,6 +100,9 @@ elif planet=="Mercury":
 elif planet=="Ganymede":
     NPOL,NPOL_EXT=3,0
     const=1e5
+elif planet=="My_own":
+    NPOL,NPOL_EXT=7,0
+    const=1e5
 else:
     print("There is no option for " + planet + " (maybe you had a typo)")
     raise SystemExit
@@ -108,18 +111,18 @@ else:
 # The following function reads the g's and h's constants and puts them 
 # in NPOL x NPOL matrices, depending on the planet and the year:
 print("------------------------------------------------------------")
-print("Reading Schmidt constants (g,h,G,H):")
+print("Reading Schmidt constants (g,h,G,H)")
 g, h, G, H = reader.reader(planet, year, NPOL, NPOL_EXT)
 
 # This function defines the K and S matrices with dimension NPOL x NPOL
 print("------------------------------------------------------------")
-print("Calculating K and S recursively:")
+print("Calculating K and S recursively")
 K, S = schmidt.KandS(NPOL)
 
 # This function defines the Gaussian-normalized and the Schmidt quasi-normalized
 # associated Legendre polynomials for the given theta resolution
 print("------------------------------------------------------------")
-print("Calculating Schmidt quasi-normalized polynomiasl recursively:")
+print("Calculating Schmidt quasi-normalized polynomiasl recursively")
 P, derivP = schmidt.Schmidtcoefficients(NPOL, Ntheta, theta, K, S)
 
 #----------------------------------------------------------------------------
@@ -134,6 +137,8 @@ fieldx = np.zeros([Nr, Ntheta, Nphi])
 fieldy = np.zeros([Nr, Ntheta, Nphi])
 fieldz = np.zeros([Nr, Ntheta, Nphi])
 
+print("------------------------------------------------------------")
+print("Obtaining the magnetic field potential and components")
 # Main loop (for all r, theta phi) which obtains the potential and field components
 for j in range(0, Ntheta):
     for k in range(0, Nphi):

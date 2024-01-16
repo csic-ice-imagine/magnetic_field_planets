@@ -9,36 +9,41 @@
 # movie file using ffmpeg:
 # ffmpeg -framerate 4 -i Earth_fieldr_Mollweide_r_%03d.png Earth_fieldr_Mollweide.mp4
 #----------------------------------------------------------------------------
-
 import numpy as np
 import matplotlib.pyplot as plt
-import reader, schmidt, saveoutput, saveplots, lowes_spec, magnitudes
-
-# Plot resolution
-Ntheta = 50      # Latitudinal points (North-South direction)
+import reader, schmidt, saveplots, lowes_spec
+# Grid resolution
+Ntheta = 200     # Latitudinal points (North-South direction)
 Nphi = 2*Ntheta  # Longitudial points (East-West direction)
-Nr = 1           # Radial points which convert to movie frames
+Nr = 1           # Radial points (change only to generate 3D output)
 
-a = 1  # Should be 6371.2/72492 (Earth/Jupiter), but renormalize to 1, since r/a is what matters. It is used only for the calculation of some magnitudes
+# Radius considered in the map plot, and name of the corresponding images 
+# This should be the actual radius in kilometers (6371.2/72492 for
+# Earth/Jupiter), but we renormalize to 1, since r/a is what matters.
 rc = 0.55
 
-# Definition of the spherical grid matrices
-#phi    = np.linspace(1 * np.pi / Nphi, 2 * np.pi *(1 + 1/Nphi), num=Nphi)
-phi    = np.linspace(0, 2*np.pi, num=Nphi)
-theta  = np.linspace(.1 * np.pi / Ntheta, np.pi * (1 - .1 / Ntheta), num=Ntheta)
-radius  = np.linspace(rc,rc+0.00001, num=1)
-
 # Planet (or satellite) to choose. Raw data is located in folder data/
-planet, years = "Earth", np.linspace(1900,2020,num=25)
-# You can choose either Earth, Jupiter, Jupiter_2021, Saturn, Neptune, Uranus, Mercury
-# and Ganymede. Anything else will make the code stop.  If you choose Earth, you also need
-# to choose a year, which can only be: 1900, 1905, 1910, ..., to 2020.
+planet, year = "Jupiter_2021", 2020
+# You can choose either Earth, Jupiter, Jupiter_2021, Saturn, Neptune, Uranus,
+# Mercury and Ganymede. Anything else will make the code stop.  If you choose 
+# Earth, you also need to choose a year, which can only be: 1900, 1905, 1910,
+#  ..., to 2020.
+
+# Definition of the spherical grid matrices
+phi    = np.linspace(0, 2*np.pi, num=Nphi)
+theta  = np.linspace(np.pi / Ntheta, np.pi * (1 - 1 /  Ntheta), num=Ntheta)
+radius  = np.linspace(rc,rc+0.00001, num=1)
  
-# Switches to save projections in plane and Mollweide projections. Coastlines are included in Earth plots.
+#----------------------------------------------------------------------------
+# Switches to save projections in plane and Mollweide projections. Coastlines
+#  are included in Earth plots.
 planeproj, mollweideproj = True, True
-# If you have successfully installed the ccrs library you can put the Earth coastline in the Earth plane projections also, using the boolean ccrs_library
+# If you have successfully installed the ccrs library you can put the Earth 
+# coastline in the Earth plane projections also, using the boolean ccrs_library
 ccrs_library = True
-# ATTENTION: To plot using the Mollweide projection you need the ccrs library. The combination mollweideproj=True, ccrs_library=False will crash if you have 
+
+# ATTENTION: To plot using the Mollweide projection you need the ccrs library.
+# The combination mollweideproj=True, ccrs_library=False will crash if you have 
 # not installed this library
 
 # Switch to save the Lowes spectrum for the given radius
@@ -55,10 +60,14 @@ else:
     print("There is no option for " + planet + " (maybe you had a typo)")
     raise SystemExit
 
-# Depending on the planet you choose, the data will have different multipole definition and will be normalized in nT or G
+#----------------------------------------------------------------------------
+# Depending on the planet you choose, the data will have different 
+# multipole definition and will be normalized in nT or G.
+# Constants const are used to go from nanotesla to gauss (all plots have gauss
+# as main units). This and the total 
 if planet=="Earth":
     NPOL,NPOL_EXT=14,0
-    const=1e5  # To go from nanotesla to gauss (usually the plots are using gauss) if necessary
+    const=1e5  
 elif planet=="Jupiter":
     NPOL,NPOL_EXT=11,0
     const=1e5
@@ -83,7 +92,7 @@ elif planet=="Ganymede":
 else:
     NPOL,NPOL_EXT=0,0
 
-
+#----------------------------------------------------------------------------
 # Plot parameters
 plt.rcParams['figure.figsize'] = (12, 8)
 plt.rcParams['font.size'] = 16

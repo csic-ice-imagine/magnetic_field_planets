@@ -122,6 +122,16 @@ def reader(planet,
                 g[int(file_list[1]), int(file_list[2])] = float(file_list[4])
             else:
                 h[int(file_list[1]), int(file_list[2])] = float(file_list[4])
+#--------------------------------------------------------------------------------
+    elif planet == "My_own":
+        file = open("data/my_own_planet.txt", "r")
+        lines = file.readlines()[2:]
+        for n in range(0, len(lines)):
+            file_list = [i for i in lines[n].split()]
+            if file_list[0] == 'g':
+                g[int(file_list[1]), int(file_list[2])] = float(file_list[3])
+            else:
+                h[int(file_list[1]), int(file_list[2])] = float(file_list[3])
     
     return g,h,G,H
 #--------------------------------------------------------------------------------
