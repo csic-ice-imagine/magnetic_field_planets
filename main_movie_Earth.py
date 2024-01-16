@@ -18,16 +18,13 @@ Nphi = 2*Ntheta  # Longitudial points (East-West direction)
 Nr = 1           # Radial points (change only to generate 3D output)
 
 # Radius considered in the map plot, and name of the corresponding images 
-# This should be the actual radius in kilometers (6371.2/72492 for
-# Earth/Jupiter), but we renormalize to 1, since r/a is what matters.
+# This should be the actual radius in kilometers (6371.2 for Earth),
+# but we renormalize to 1, since r/a is what matters.
 rc = 0.55
 
-# Planet (or satellite) to choose. Raw data is located in folder data/
-planet, year = "Jupiter_2021", 2020
-# You can choose either Earth, Jupiter, Jupiter_2021, Saturn, Neptune, Uranus,
-# Mercury and Ganymede. Anything else will make the code stop.  If you choose 
-# Earth, you also need to choose a year, which can only be: 1900, 1905, 1910,
-#  ..., to 2020.
+# Raw data for Earth is located in folder data/
+planet = "Earth"
+years = np.linspace(1900,2020,25)
 
 # Definition of the spherical grid matrices
 phi    = np.linspace(0, 2*np.pi, num=Nphi)
@@ -61,36 +58,9 @@ else:
     raise SystemExit
 
 #----------------------------------------------------------------------------
-# Depending on the planet you choose, the data will have different 
-# multipole definition and will be normalized in nT or G.
-# Constants const are used to go from nanotesla to gauss (all plots have gauss
-# as main units). This and the total 
-if planet=="Earth":
-    NPOL,NPOL_EXT=14,0
-    const=1e5  
-elif planet=="Jupiter":
-    NPOL,NPOL_EXT=11,0
-    const=1e5
-elif planet=="Jupiter_2021":
-    NPOL,NPOL_EXT=31,2
-    const=1e5
-elif planet=="Saturn":
-    NPOL,NPOL_EXT=7,0
-    const=1e5
-elif planet=="Uranus":
-    NPOL,NPOL_EXT=4,0
-    const=1      # Uranus and Neptune coefficients are already in Gauss 
-elif planet=="Neptune":
-    NPOL,NPOL_EXT=4,0
-    const=1
-elif planet=="Mercury":
-    NPOL,NPOL_EXT=4,2
-    const=1e5
-elif planet=="Ganymede":
-    NPOL,NPOL_EXT=3,0
-    const=1e5
-else:
-    NPOL,NPOL_EXT=0,0
+# The planet can only be Earth
+NPOL,NPOL_EXT=14,0
+const=1e5 
 
 #----------------------------------------------------------------------------
 # Plot parameters

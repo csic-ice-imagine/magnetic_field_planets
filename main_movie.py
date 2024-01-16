@@ -21,11 +21,11 @@ Nr = 100         # Radial points which will be the number of movie frames
 rc_i,rc_o = 0.45, 1.50 
 
 # Planet (or satellite) to choose. Raw data is located in folder data/
-planet, year = "Jupiter_2021", 2020
+planet, year = "My_own", 2020
 # You can choose either Earth, Jupiter, Jupiter_2021, Saturn, Neptune, Uranus,
-# Mercury and Ganymede. Anything else will make the code stop.  If you choose 
-# Earth, you also need to choose a year, which can only be: 1900, 1905, 1910,
-#  ..., to 2020.
+# Mercury and Ganymede or My_own. Anything else will make the code stop.  If 
+# you choose Earth, you also need to choose a year, which can only be: 1900, 
+# 1905, 1910, ..., to 2020.
 
 # Definition of the spherical grid matrices
 phi    = np.linspace(0, 2*np.pi, num=Nphi)
@@ -95,8 +95,12 @@ elif planet=="Mercury":
 elif planet=="Ganymede":
     NPOL,NPOL_EXT=3,0
     const=1e5
+elif planet=="My_own":
+    NPOL,NPOL_EXT=7,0
+    const=1e5
 else:
-    NPOL,NPOL_EXT=0,0
+    print("There is no option for " + planet + " (maybe you had a typo)")
+    raise SystemExit
 
 #----------------------------------------------------------------------------
 # The following function reads the g's and h's constants and puts them 
