@@ -208,7 +208,7 @@ def plot_1(planet,
         if planet=="Earth":
             plt.contourf(Phi,
                          Theta,
-                         np.flip(magnitude),
+                         np.flip(magnitude,1),
                          cmap=realmap, vmin=vmin,
                          vmax=vmax,
                          levels=30)
@@ -268,7 +268,7 @@ def plot_1(planet,
         if planet=="Earth":
             plt.contourf(Phi,
                         Theta,
-                        np.flip(magnitude,0),
+                        np.flip(magnitude,1),
                         cmap=realmap,
                         levels=30,
                         vmin=vmin,
