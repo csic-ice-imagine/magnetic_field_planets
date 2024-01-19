@@ -172,7 +172,7 @@ def plot_1(planet,
     rc_file = rc_file.replace(".","_")
 
 # ---------------------------------------------------------------------------
-    Phi, Theta = np.meshgrid(360 * (1 - phi / 2 / np.pi), 
+    Phi, Theta = np.meshgrid(360 * (1 - phi / 2 / np.pi),
                              - 180 * theta / np.pi + 90)
     names = [r'Potential (Gauss · 1 $R_P$) at $r =$' + '%.3f'%rc + '$R_P$', 
              '$B_r$ (Gauss) at $r =$' + '%.3f'%rc + '$R_P$',
@@ -205,17 +205,17 @@ def plot_1(planet,
         else:
             realmap = cmap1
             vmin, vmax = -limit, limit
-        if planet == "Earth":
+        if planet=="Earth":
             plt.contourf(Phi,
                          Theta,
                          np.flip(magnitude),
-                         cmap=realmap,
-                         vmin=vmin,
+                         cmap=realmap, vmin=vmin,
                          vmax=vmax,
                          levels=30)
+            ax.coastlines()
         else:
-            plt.contourf(Phi,
-                         Theta,
+            plt.contourf(- Phi + 180,
+                         Theta, 
                          magnitude,
                          cmap=realmap,
                          vmin=vmin,
@@ -265,15 +265,25 @@ def plot_1(planet,
         else:
             realmap = cmap1
             vmin, vmax = -limit, limit
-        plt.contourf(-Phi,
-                     Theta,
-                     magnitude,
-                     cmap=realmap,
-                     levels=35,
-                     vmin=vmin,
-                     vmax=vmax,
-                     transform=ccrs.PlateCarree())
-        if planet=="Earth": ax.coastlines()
+        if planet=="Earth":
+            plt.contourf(Phi,
+                        Theta,
+                        np.flip(magnitude,0),
+                        cmap=realmap,
+                        levels=30,
+                        vmin=vmin,
+                        vmax=vmax,
+                        transform=ccrs.PlateCarree())
+            ax.coastlines()
+        else:
+            plt.contourf(- Phi + 180,
+                        Theta,
+                        magnitude,
+                        cmap=realmap,
+                        levels=30,
+                        vmin=vmin,
+                        vmax=vmax,
+                        transform=ccrs.PlateCarree())
         cbar = plt.colorbar(orientation="horizontal",
                             pad=.1,
                             shrink=0.5)

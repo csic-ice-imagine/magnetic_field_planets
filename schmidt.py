@@ -111,7 +111,7 @@ def potentialfunction(radius,
         poten += suma * (1 / radius) ** (n + 1)
         fr += suma * (n + 1) * (1 / radius) ** (n + 2)
         ftheta += - sumatheta * (1 / radius) ** (n + 2)
-        fphi += - sumaphi * (1 / radius) ** (n + 2) / np.sin(theta[ntheta])
+        fphi += - sumaphi * (1 / radius) ** (n + 2) / np.sin(theta)
     return poten / const, fr / const, ftheta / const, fphi / const
 
 # ---------------------------------------------------------------------------
@@ -146,6 +146,6 @@ def potentialfunctionexternal(radius,
         poten += suma * radius ** n
         fr += - suma * n * radius ** (n - 1)
         ftheta += - sumatheta * radius ** (n - 1)
-        fphi += - sumaphi * radius ** (n - 1) / np.sin(theta[ntheta])
+        fphi += - sumaphi * radius ** (n - 1) / np.sin(theta)
     return poten / const, fr / const, ftheta / const, fphi / const
 # ---------------------------------------------------------------------------

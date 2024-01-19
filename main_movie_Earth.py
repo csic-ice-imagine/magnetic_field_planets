@@ -13,14 +13,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 import reader, schmidt, saveplots, lowes_spec
 # Grid resolution
-Ntheta = 200     # Latitudinal points (North-South direction)
+Ntheta = 20     # Latitudinal points (North-South direction)
 Nphi = 2*Ntheta  # Longitudial points (East-West direction)
 Nr = 1           # Radial points (change only to generate 3D output)
 
 # Radius considered in the map plot, and name of the corresponding images 
 # This should be the actual radius in kilometers (6371.2 for Earth),
 # but we renormalize to 1, since r/a is what matters.
-rc = 0.55
+rc = 1.00
 
 # Raw data for Earth is located in folder data/
 planet = "Earth"
@@ -83,14 +83,12 @@ for frame, year in enumerate(years):
     # This function defines the K and S matrices with dimension NPOL x NPOL
     print("------------------------------------------------------------")
     print("Calculating K and S recursively:")
+    K, S = schmidt.KandS(NPOL)
 
     # This function defines the Gaussian-normalized and the Schmidt quasi-normalized
     # associated Legendre polynomials for the given theta resolution
     print("------------------------------------------------------------")
-    print("Calculating Schmidt quasi-normalized polynomiasl recursively:")
-
-    # This part defines the Gaussian-normalized and
-    # the Schmidt quasi-normalized associated Legendre polynomials
+    print("Calculating Schmidt quasi-normalized polynomials recursively:")
     P, derivP = schmidt.Schmidtcoefficients(NPOL, Ntheta, theta, K, S)
 
     # Initialize all components of the magnetic field (spherical, cartesian and modulus)
@@ -104,10 +102,10 @@ for frame, year in enumerate(years):
     for j in range(0, Ntheta):
         for k in range(0, Nphi):
             potential[j, k], fieldr[j, k], fieldtheta[j, k], fieldphi[j, k] = \
-                schmidt.potentialfunction(radius[:], j, phi[k], theta, NPOL, P, derivP, const, g, h)
+                schmidt.potentialfunction(radius[:], j, phi[k], theta[j], NPOL, P, derivP, const, g, h)
             if NPOL_EXT != 0:
                 potential_EXT[j, k], fieldr_EXT[j, k], fieldtheta_EXT[j, k], fieldphi_EXT[j, k] = \
-                    schmidt.potentialfunctionexternal(radius[:], j, phi[k], theta, NPOL_EXT, P, derivP, const, G, H)
+                    schmidt.potentialfunctionexternal(radius[:], j, phi[k], theta[j], NPOL_EXT, P, derivP, const, G, H)
                 potential[j, k] += potential_EXT[j, k]
                 fieldr[j, k] += fieldr_EXT[j, k]
                 fieldtheta[j, k] += fieldtheta_EXT[j, k]
@@ -154,7 +152,7 @@ for frame, year in enumerate(years):
     
     
 print("------------------------------------------------------------")
-print("--- Created by: A.Elias, The IMAGINE PROJECT, ICE-CSIC   ---")
+print("---  Created by: A.Elias, The IMAGINE PROJECT, ICE-CSIC  ---")
 print("------------------------------------------------------------")
 
 #----------------------------------------------------------------------------
