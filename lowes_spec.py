@@ -82,6 +82,7 @@ def plot_multiple_lowes(planet,        # String used for saving plots in the rig
     plt.ylabel(r'R$_n$ (nT)$^2$')
     plt.legend(loc='best')
     plt.yscale('log')
-    plt.savefig("Saving " + planet + "/" + planet + '_lowes_spectrum.png')
+    #plt.xlim(0,18)
+    plt.savefig(planet + "/" + planet + '_lowes_spectrum.png')
     print("Saving " + planet + "/" + planet + '_lowes_spectrum.png')
 # -----------------------------------------------------------------------------------

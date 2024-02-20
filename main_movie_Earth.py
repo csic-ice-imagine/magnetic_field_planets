@@ -13,7 +13,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import reader, schmidt, saveplots, lowes_spec
 # Grid resolution
-Ntheta = 20     # Latitudinal points (North-South direction)
+Ntheta = 50     # Latitudinal points (North-South direction)
 Nphi = 2*Ntheta  # Longitudial points (East-West direction)
 Nr = 1           # Radial points (change only to generate 3D output)
 

@@ -12,6 +12,10 @@ To enable all the plotting options (Mollweide projection and Earth's coastlines)
 
 pip install cartopy
 
+If you use anaconda you should use:
+
+conda install -c conda-forge cartopy
+
 For specific solution look in https://scitools.org.uk/cartopy/docs/latest/installing.html, or as the powerful Mr Google. Some ubuntu version are a bit more complex. For example, I had to fight a bit:
 
 sudo apt-get install libproj-dev proj-data proj-bin  

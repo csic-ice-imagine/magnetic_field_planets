@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import reader, schmidt, saveoutput, saveplots, lowes_spec, magnitudes
 #----------------------------------------------------------------------------
 # Grid resolution
-Ntheta = 25      # Latitudinal points (North-South direction)
+Ntheta = 50      # Latitudinal points (North-South direction)
 Nphi = 2*Ntheta  # Longitudial points (East-West direction)
 Nr = 1           # Radial points (change only to generate 3D output)
 
@@ -25,7 +25,7 @@ rc_file = '%.2f'%rc
 rc_file = rc_file.replace(".","_") 
 
 # Planet (or satellite) to choose. Raw data is located in folder data/
-planet, year = "Earth", 2020
+planet, year = "My_own", 2020
 # You can choose either Earth, Jupiter, Jupiter_2021, Saturn, Neptune, Uranus,
 # Mercury and Ganymede or My_own. Anything else will make the code stop.  If 
 # you choose Earth, you also need to choose a year, which can only be: 1900, 
@@ -53,7 +53,8 @@ ccrs_library = True
 # Switch to save the Lowes spectrum for the given radius
 lowes = True
 # Switch to save the Lowes spectrum for a number of radii
-multiple_lowes_r, lowes_radii = False, np.array([1.45,1.30,1.15,1.00,0.85,0.70,0.55])
+multiple_lowes_r, lowes_radii = True, np.array([1.20,1.15,1.10,1.05,1.00,0.95,0.90,0.85,0.80])
+# np.array([1.45,1.30,1.15,1.00,0.85,0.70,0.55])
 # Switch to plot the curl, divergence and curvature of the magnetic field
 plot_magnitudes = False
 
@@ -102,7 +103,7 @@ elif planet=="Ganymede":
     const=1e5
 elif planet=="My_own":
     NPOL,NPOL_EXT=7,0
-    const=1e5
+    const=1
 else:
     print("There is no option for " + planet + " (maybe you had a typo)")
     raise SystemExit
