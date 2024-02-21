@@ -53,7 +53,8 @@ ccrs_library = True
 # Switch to save the Lowes spectrum for the given radius
 lowes = True
 # Switch to save the Lowes spectrum for a number of radii
-multiple_lowes_r, lowes_radii = True, np.array([1.20,1.15,1.10,1.05,1.00,0.95,0.90,0.85,0.80])
+multiple_lowes_r, lowes_radii = False, np.array([1.45,1.30,1.15,1.00,0.85,0.70,0.55])
+# np.array([1.20,1.15,1.10,1.05,1.00,0.95,0.90,0.85,0.80])
 # np.array([1.45,1.30,1.15,1.00,0.85,0.70,0.55])
 # Switch to plot the curl, divergence and curvature of the magnetic field
 plot_magnitudes = False
