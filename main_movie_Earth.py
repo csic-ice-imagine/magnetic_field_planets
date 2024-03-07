@@ -102,10 +102,10 @@ for frame, year in enumerate(years):
     for j in range(0, Ntheta):
         for k in range(0, Nphi):
             potential[j, k], fieldr[j, k], fieldtheta[j, k], fieldphi[j, k] = \
-                schmidt.potentialfunction(radius[:], j, phi[k], theta[j], NPOL, P, derivP, const, g, h)
+                schmidt.potentialfunction(radius[0], j, phi[k], theta[j], NPOL, P, derivP, const, g, h)
             if NPOL_EXT != 0:
                 potential_EXT[j, k], fieldr_EXT[j, k], fieldtheta_EXT[j, k], fieldphi_EXT[j, k] = \
-                    schmidt.potentialfunctionexternal(radius[:], j, phi[k], theta[j], NPOL_EXT, P, derivP, const, G, H)
+                    schmidt.potentialfunctionexternal(radius[0], j, phi[k], theta[j], NPOL_EXT, P, derivP, const, G, H)
                 potential[j, k] += potential_EXT[j, k]
                 fieldr[j, k] += fieldr_EXT[j, k]
                 fieldtheta[j, k] += fieldtheta_EXT[j, k]

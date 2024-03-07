@@ -5,6 +5,7 @@
 #------------------------------------------------------------------------------------
 
 import numpy as np
+import os
 import matplotlib.pyplot as plt
 
 # -----------------------------------------------------------------------------------
@@ -41,25 +42,39 @@ def plot_lowes(planet,             # String for the directory name
     plt.xlabel('Harmonic degree (n) at $r =$' + '%.3f'%rc + '$R_P$')
     plt.ylabel(r'R$_n$ (nT)$^2$')
     plt.yscale('log')
+
     if movie:
         if years:
             plt.title(str(year))
             rc_file_true = '%.3f'%rc
             rc_file_true = rc_file_true.replace(".","_")
-            plt.savefig(planet + "_movie_years_r_" + rc_file_true + \
-                        "/" + planet + '_lowes_spectrum_r_' + \
-                        '%03d'%rc_file + '.png')
+            try: plt.savefig(planet + "_movie_years_r_" + rc_file_true + \
+                            "/" + planet + '_lowes_spectrum_r_' + \
+                            '%03d'%rc_file + '.png')
+            except:
+                os.mkdir(planet)
+                plt.savefig(planet + "_movie_years_r_" + rc_file_true + \
+                            "/" + planet + '_lowes_spectrum_r_' + \
+                            '%03d'%rc_file + '.png')
             print("Saving " + planet + "_movie_years_r_" + rc_file_true + \
                   "/" + planet + '_lowes_spectrum_r_' + \
                   '%03d'%rc_file + '.png')
         else:
-            plt.savefig(planet + "_movie/" + planet + '_lowes_spectrum_r_' \
+            try: plt.savefig(planet + "_movie/" + planet + '_lowes_spectrum_r_' \
+                        + '%03d'%rc_file + '.png')
+            except:
+                os.mkdir(planet)
+                plt.savefig(planet + "_movie/" + planet + '_lowes_spectrum_r_' \
                         + '%03d'%rc_file + '.png')
             print("Saving " + planet + "_movie/" + planet + '_lowes_spectrum_r_' \
                         + '%03d'%rc_file + '.png')
-    else: 
-        plt.savefig(planet + "/" + planet + '_lowes_spectrum_r_' + \
-                    rc_file + '.png')
+    else:
+        try: plt.savefig(planet + "/" + planet + '_lowes_spectrum_r_' + \
+                        rc_file + '.png')
+        except:
+            os.mkdir(planet)
+            plt.savefig(planet + "/" + planet + '_lowes_spectrum_r_' + \
+                        rc_file + '.png')
         print("Saving " + planet + "/" + planet + '_lowes_spectrum_r_' + \
                     rc_file + '.png')
 

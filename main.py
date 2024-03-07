@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import reader, schmidt, saveoutput, saveplots, lowes_spec, magnitudes
 #----------------------------------------------------------------------------
 # Grid resolution
-Ntheta = 50      # Latitudinal points (North-South direction)
+Ntheta = 25      # Latitudinal points (North-South direction)
 Nphi = 2*Ntheta  # Longitudial points (East-West direction)
 Nr = 1           # Radial points (change only to generate 3D output)
 
@@ -25,7 +25,7 @@ rc_file = '%.2f'%rc
 rc_file = rc_file.replace(".","_") 
 
 # Planet (or satellite) to choose. Raw data is located in folder data/
-planet, year = "My_own", 2020
+planet, year = "Earth", 2020
 # You can choose either Earth, Jupiter, Jupiter_2021, Saturn, Neptune, Uranus,
 # Mercury and Ganymede or My_own. Anything else will make the code stop.  If 
 # you choose Earth, you also need to choose a year, which can only be: 1900, 

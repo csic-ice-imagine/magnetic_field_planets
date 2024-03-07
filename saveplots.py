@@ -44,17 +44,23 @@ def plot_all(planet,
     # Names that will appear as the color bar title of each plot
     names = [r'Potential (Gauss · 1 $R_P$) at $r =$' + str(rc) + '$R_P$', 
              '$B_r$ (Gauss) at $r =$' + str(rc) + '$R_P$',
-             '$B_θ$ (Gauss) at $r =$' + str(rc) + '$R_P$', 
+             '$B_θ$ (Gauss) at $r =$' + str(rc) + '$R_P$', # In case of error, try $B_{\theta}$
              '$B_{\phi}$ (Gauss) at $r =$' + str(rc) + '$R_P$',
-             '$|B|$ (Gauss) at $r =$' + str(rc) + '$R_P$']
+             '$|B|$ (Gauss) at $r =$' + str(rc) + '$R_P$',
+             'Magnetic declination at $r =$' + str(rc) + '$R_P$',
+             'Magnetic inclination at $r =$' + str(rc) + '$R_P$']
     # Names that will recieve the given png files
     files = [planet + '_r_' + rc_file + '_potential', 
              planet + '_r_' + rc_file + '_fieldr', 
              planet + '_r_' + rc_file + '_fieldtheta', 
              planet + '_r_' + rc_file + '_fieldphi',
-             planet + '_r_' + rc_file + '_fieldmod']
+             planet + '_r_' + rc_file + '_fieldmod',
+             planet + '_r_' + rc_file + '_declination',
+             planet + '_r_' + rc_file + '_inclination']
     # Set of magnitudes to be plotted (by the same order of names and files)
-    magnitudes = [potential, fieldr, fieldtheta, fieldphi, fieldmod]
+    declination = np.rad2deg(np.arctan(-fieldphi/fieldtheta))
+    inclination = np.rad2deg(np.arctan(-fieldr/np.sqrt(fieldtheta**2+fieldphi**2)))
+    magnitudes = [potential, fieldr, fieldtheta, fieldphi, fieldmod, declination, inclination]
     # -----------------------------------------------------------------------
     
     if plane:
@@ -176,7 +182,7 @@ def plot_1(planet,
                              - 180 * theta / np.pi + 90)
     names = [r'Potential (Gauss · 1 $R_P$) at $r =$' + '%.3f'%rc + '$R_P$', 
              '$B_r$ (Gauss) at $r =$' + '%.3f'%rc + '$R_P$',
-             '$B_θ$ (Gauss) at $r =$' + '%.3f'%rc + '$R_P$', 
+             '$B_θ$ (Gauss) at $r =$' + '%.3f'%rc + '$R_P$', # In case of error, try $B_{\theta}$ 
              '$B_{\phi}$ (Gauss) at $r =$' + '%.3f'%rc + '$R_P$',
              '$|B|$ (Gauss) at $r =$' + '%.3f'%rc + '$R_P$']
 # --------------------------------------------------------------------------- 

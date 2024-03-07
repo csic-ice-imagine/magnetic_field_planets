@@ -13,15 +13,15 @@ import matplotlib.pyplot as plt
 import reader, schmidt, saveplots, lowes_spec
 
 # Plot resolution
-Ntheta = 20      # Latitudinal points (North-South direction)
+Ntheta = 30      # Latitudinal points (North-South direction)
 Nphi = 2*Ntheta  # Longitudial points (East-West direction)
-Nr = 10         # Radial points which will be the number of movie frames
+Nr = 15         # Radial points which will be the number of movie frames
 
 # Radial interval (in radial planetary units) to plot Nr number of plots
-rc_i,rc_o = 0.45, 1.50 
+rc_i,rc_o = 0.80, 1.30 
 
 # Planet (or satellite) to choose. Raw data is located in folder data/
-planet, year = "Earth", 2020
+planet, year = "Jupiter", 2020
 # You can choose either Earth, Jupiter, Jupiter_2021, Saturn, Neptune, Uranus,
 # Mercury and Ganymede or My_own. Anything else will make the code stop.  If 
 # you choose Earth, you also need to choose a year, which can only be: 1900, 
