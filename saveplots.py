@@ -13,8 +13,6 @@ plt.rcParams['figure.figsize'] = (10, 7)
 plt.rcParams['font.size'] = 16
 plt.rcParams['lines.linewidth'] = 1
 plt.rcParams["figure.autolayout"] = True
-cmap1 = cm.get_cmap('RdBu_r', 255)
-cmap2 = cm.get_cmap('inferno', 255)
 
 # ---------------------------------------------------------------------------
 # This function plots the potential, the magnetic field compnents and its 
@@ -43,12 +41,12 @@ def plot_all(planet,
                              - 180 * theta / np.pi + 90)
     # Names that will appear as the color bar title of each plot
     names = [r'Potential (Gauss · 1 $R_P$) at $r =$' + str(rc) + '$R_P$', 
-             '$B_r$ (Gauss) at $r =$' + str(rc) + '$R_P$',
-             '$B_θ$ (Gauss) at $r =$' + str(rc) + '$R_P$', # In case of error, try $B_{\theta}$
-             '$B_{\phi}$ (Gauss) at $r =$' + str(rc) + '$R_P$',
-             '$|B|$ (Gauss) at $r =$' + str(rc) + '$R_P$',
-             'Magnetic declination at $r =$' + str(rc) + '$R_P$',
-             'Magnetic inclination at $r =$' + str(rc) + '$R_P$']
+             r'$B_r$ (Gauss) at $r =$' + str(rc) + '$R_P$',
+             r'$B_θ$ (Gauss) at $r =$' + str(rc) + '$R_P$', # In case of error, try $B_{\theta}$
+             r'$B_{\phi}$ (Gauss) at $r =$' + str(rc) + '$R_P$',
+             r'$|B|$ (Gauss) at $r =$' + str(rc) + '$R_P$',
+             r'Magnetic declination $D$ ($\degree$) at $r =$' + str(rc) + '$R_P$',
+             r'Magnetic inclination $I$ ($\degree$) at $r =$' + str(rc) + '$R_P$']
     # Names that will recieve the given png files
     files = [planet + '_r_' + rc_file + '_potential', 
              planet + '_r_' + rc_file + '_fieldr', 
@@ -78,10 +76,13 @@ def plot_all(planet,
             limit = max(np.absolute(np.max(magnitude)), 
                         np.absolute(np.min(magnitude)))
             if index==4: 
-                realmap = cmap2
+                realmap = cm.get_cmap('inferno', 255)
                 vmin, vmax = np.min(magnitude), np.max(magnitude)
+            elif index==5 or index==6: 
+                realmap = cm.get_cmap('PRGn', 255)
+                vmin, vmax = -limit, limit
             else:
-                realmap = cmap1
+                realmap = cm.get_cmap('RdBu_r', 255)
                 vmin, vmax = -limit, limit
             if planet=="Earth":
                 plt.contourf(Phi,
@@ -118,10 +119,13 @@ def plot_all(planet,
             limit = max(np.absolute(np.max(magnitude)),
                         np.absolute(np.min(magnitude)))
             if index==4: 
-                realmap = cmap2
+                realmap = cm.get_cmap('inferno', 255)
                 vmin, vmax = np.min(magnitude), np.max(magnitude)
+            elif index==5 or index==6: 
+                realmap = cm.get_cmap('PRGn', 255)
+                vmin, vmax = -limit, limit
             else:
-                realmap = cmap1
+                realmap = cm.get_cmap('RdBu_r', 255)
                 vmin, vmax = -limit, limit
             if planet=="Earth":
                 plt.contourf(Phi,
@@ -206,10 +210,10 @@ def plot_1(planet,
         limit = max(np.absolute(np.max(magnitude)),
                     np.absolute(np.min(magnitude)))
         if index==4: 
-            realmap = cmap2
+            realmap = cmap2 = cm.get_cmap('inferno', 255)
             vmin, vmax = np.min(magnitude), np.max(magnitude)
         else:
-            realmap = cmap1
+            realmap = cmap1 = cm.get_cmap('RdBu_r', 255)
             vmin, vmax = -limit, limit
         if planet=="Earth":
             plt.contourf(Phi,
