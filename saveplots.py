@@ -91,7 +91,7 @@ def plot_all(planet,
                              cmap=realmap, vmin=vmin,
                              vmax=vmax,
                              levels=30)
-                ax.coastlines()
+                if ccrs_library: ax.coastlines()
             else:
                 plt.contourf(- Phi + 180,
                              Theta, 
@@ -200,7 +200,6 @@ def plot_1(planet,
         if ccrs_library:
             import cartopy.crs as ccrs
             ax = plt.axes(projection=ccrs.PlateCarree())
-            if planet=="Earth": ax.coastlines()
         else:
             ax = plt.axes()
         ax.set_xticks([-180,-120,-60,0,60,120,180,240,300,360])
@@ -222,7 +221,7 @@ def plot_1(planet,
                          cmap=realmap, vmin=vmin,
                          vmax=vmax,
                          levels=30)
-            ax.coastlines()
+            if ccrs_library: ax.coastlines()
         else:
             plt.contourf(- Phi + 180,
                          Theta, 
