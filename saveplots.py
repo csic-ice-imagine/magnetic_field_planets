@@ -209,10 +209,10 @@ def plot_1(planet,
         limit = max(np.absolute(np.max(magnitude)),
                     np.absolute(np.min(magnitude)))
         if index==4: 
-            realmap = cmap2 = cm.get_cmap('inferno', 255)
+            realmap = cm.get_cmap('inferno', 255)
             vmin, vmax = np.min(magnitude), np.max(magnitude)
         else:
-            realmap = cmap1 = cm.get_cmap('RdBu_r', 255)
+            realmap = cm.get_cmap('RdBu_r', 255)
             vmin, vmax = -limit, limit
         if planet=="Earth":
             plt.contourf(Phi,
@@ -268,11 +268,12 @@ def plot_1(planet,
         ax = plt.axes(projection=ccrs.Mollweide())
         limit = max(np.absolute(np.max(magnitude)),
                     np.absolute(np.min(magnitude)))
+        
         if index==4: 
-            realmap = cmap2
+            realmap = cm.get_cmap('inferno', 255)
             vmin, vmax = np.min(magnitude), np.max(magnitude)
         else:
-            realmap = cmap1
+            realmap = cm.get_cmap('RdBu_r', 255)
             vmin, vmax = -limit, limit
         if planet=="Earth":
             plt.contourf(Phi,

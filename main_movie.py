@@ -13,15 +13,15 @@ import matplotlib.pyplot as plt
 import reader, schmidt, saveplots, lowes_spec
 
 # Plot resolution
-Ntheta = 30      # Latitudinal points (North-South direction)
+Ntheta = 50     # Latitudinal points (North-South direction)
 Nphi = 2*Ntheta  # Longitudial points (East-West direction)
-Nr = 15         # Radial points which will be the number of movie frames
+Nr = 400        # Radial points which will be the number of movie frames
 
 # Radial interval (in radial planetary units) to plot Nr number of plots
 rc_i,rc_o = 0.80, 1.30 
 
 # Planet (or satellite) to choose. Raw data is located in folder data/
-planet, year = "Jupiter", 2020
+planet, year = "Jupiter_2021", 2020
 # You can choose either Earth, Jupiter, Jupiter_2021, Saturn, Neptune, Uranus,
 # Mercury and Ganymede or My_own. Anything else will make the code stop.  If 
 # you choose Earth, you also need to choose a year, which can only be: 1900, 
@@ -33,13 +33,13 @@ theta  = np.linspace(np.pi / Ntheta, np.pi * (1 - 1 /  Ntheta), num=Ntheta)
 # To calculate curvature/curl it is recommended to use a fixed value
 # theta  = np.linspace(np.pi / 20, np.pi * (1 - 1 / 20), num=Ntheta)
 # to avoid doing operations too close to the axis.
-rc     = np.linspace(rc_i, rc_o, num=Nr)
+rc     = np.linspace(rc_o, rc_i, num=Nr)
 
 
 #----------------------------------------------------------------------------
 # Switches to save projections in plane and Mollweide projections. Coastlines
 #  are included in Earth plots.
-planeproj, mollweideproj = True, True
+planeproj, mollweideproj = False, True
 # If you have successfully installed the ccrs library you can put the Earth 
 # coastline in the Earth plane projections also, using the boolean ccrs_library
 ccrs_library = True

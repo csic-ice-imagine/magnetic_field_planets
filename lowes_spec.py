@@ -42,6 +42,7 @@ def plot_lowes(planet,             # String for the directory name
     plt.xlabel('Harmonic degree (n) at $r =$' + '%.3f'%rc + '$R_P$')
     plt.ylabel(r'R$_n$ (nT)$^2$')
     plt.yscale('log')
+    if planet == "Jupiter_2021": plt.xlim(-0.2,18.5)
 
     if movie:
         if years:
